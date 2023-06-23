@@ -1,25 +1,23 @@
-import { useCallback, useState, useRef, useMemo } from "react";
-import { Animated, FlatList, Pressable, ScrollView, View } from "react-native";
+import { useState, useRef, useEffect } from "react";
+import {
+  Animated,
+  FlatList,
+  Pressable,
+  ScrollView,
+  View,
+  Text,
+  Dimensions,
+} from "react-native";
 import {
   shiftWeek,
   getIntersectingGroups,
   getStartingDates,
-  getDatesByWeek,
   eventType,
+  getDatesByWeek,
 } from "./WeekViewUtil";
 
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import {
-  Menu,
-  IconButton,
-  Text,
-  PaperProvider,
-  MD3LightTheme,
-  MD3Theme,
-  MD2Theme,
-} from "react-native-paper";
 import { DateTime } from "luxon";
-import { measureView } from "./functions";
 
 const TIMETABLE_START_HOUR = 7;
 const TIMETABLE_END_HOUR = 22;
@@ -27,6 +25,9 @@ const INTERVAL_LENGTH_MINUTES = 30;
 const INTERVAL_HEIGHT = 45;
 const HEIGHT_PER_MINUTE = INTERVAL_HEIGHT / INTERVAL_LENGTH_MINUTES;
 const COLUMN_WIDTH = 100 / 8;
+const LIGHT_BLUE = "rgb(70, 70, 80)"
+const MEDIUM_BLUE = "rgb(30,30,40)";
+const DARK_BLUE = "rgb(25,25,35)";
 
 const WeeklyView = ({
   events,
@@ -41,58 +42,61 @@ const WeeklyView = ({
   const [isWeekMenu, setIsWeekMenu] = useState(false);
   const [anchor, setAnchor] = useState({ x: 0, y: 0 });
   const pressableRef = useRef({ x: 0, y: 0 });
-  // const renderWeekDropdown = () => {
-  //   const selectedWeek = dates.start.weekNumber;
-  //   const currentWeek = DateTime.now().weekNumber;
-  //   const numOfWeeks = dates.start.weeksInWeekYear;
-  //   const arr = Array(numOfWeeks).fill("");
+  const dropdownOpacity = useRef(new Animated.Value(0)).current;
+  const dropdownHeight = useRef(new Animated.Value(0)).current;
+  const parentViewHeight = useRef({ height: 0, y: 0 });
 
-  //   return arr.map((_, i) => (
-  //     <Menu.Item
-  //       key={i}
-  //       onPress={() => {
-  //         setDates(getDatesByWeek(dates.start, i + 1));
-  //         setIsWeekMenu(false);
-  //       }}
-  //       trailingIcon={() =>
-  //         selectedWeek === i + 1 ? (
-  //           <View style={{ flex: 1, justifyContent: "center" }}>
-  //             <MaterialCommunityIcons name="eye" color="orange" size={18} />
-  //           </View>
-  //         ) : null
-  //       }
-  //       title={`Week ${i + 1}`}
-  //       style={currentWeek === i + 1 && { backgroundColor: "darkblue" }}
-  //     />
-  //   ));
-  // };
-  const renderItem = useCallback(
-    (weekNumber: number, selectedWeek: number, currentWeek: number) => {
-      return (
-        <View
-          style={[
-            {
-              flex: 1,
-              flexDirection: "row",
-              padding: 8,
-              backgroundColor: "rgb(15,0,45)",
-              borderBottomWidth: 1,
-              borderBottomColor: "white",
-              gap: 8,
-              alignItems: "center",
-            },
-            currentWeek === weekNumber && { backgroundColor: "darkblue" },
-          ]}
-        >
-          <Text style={{ color: "#fafafa" }}>{`Week ${weekNumber}`}</Text>
-          {selectedWeek === weekNumber && (
-            <MaterialCommunityIcons name="eye" color="orange" size={14} />
-          )}
-        </View>
-      );
-    },
-    []
-  );
+  useEffect(() => {
+    const height = isWeekMenu
+      ? (parentViewHeight.current.height - anchor.y) * 0.5
+      : 0;
+    const opacity = isWeekMenu ? 1 : 0;
+    Animated.parallel([
+      Animated.timing(dropdownOpacity, {
+        useNativeDriver: false,
+        toValue: opacity,
+        duration: 300,
+      }),
+      Animated.timing(dropdownHeight, {
+        useNativeDriver: false,
+        toValue: height,
+        duration: 200,
+      }),
+    ]).start();
+  }, [isWeekMenu]);
+
+  const renderItem = (
+    weekNumber: number,
+    selectedWeek: number,
+    currentWeek: number
+  ) => {
+    return (
+      <Pressable
+        onPress={() => {
+          setDates(getDatesByWeek(dates.start, weekNumber));
+          setIsWeekMenu(false);
+        }}
+        style={[
+          {
+            flex: 1,
+            flexDirection: "row",
+            padding: 8,
+            backgroundColor: MEDIUM_BLUE,
+            borderBottomWidth: 0.5,
+            borderBottomColor: "gray",
+            gap: 8,
+            alignItems: "center",
+          },
+          currentWeek === weekNumber && { backgroundColor: LIGHT_BLUE },
+        ]}
+      >
+        <Text style={{ color: "#fafafa" }}>{`Week ${weekNumber}`}</Text>
+        
+          <MaterialCommunityIcons name="eye" color="darkorange" size={14} style={{opacity:selectedWeek === weekNumber ? 1: 0}} />
+     
+      </Pressable>
+    );
+  };
 
   const renderWeekDropdown = () => {
     const selectedWeek = dates.start.weekNumber;
@@ -101,23 +105,27 @@ const WeeklyView = ({
     const arr = Array(numOfWeeks).fill("");
 
     return (
-      <View
+      <Animated.View
+        pointerEvents={isWeekMenu ? "auto" : "none"}
         style={{
           top: 0,
           left: 0,
-          display: isWeekMenu ? "flex" : "none",
+          display: "flex",
           position: "absolute",
           width: "100%",
           height: "100%",
+          backgroundColor: "rgba(0,0,0,0.4)",
+          opacity: dropdownOpacity,
         }}
       >
         <Pressable
-          onPress={() => setIsWeekMenu(false)}
+          onPress={() => {
+            setIsWeekMenu(false);
+          }}
           style={{
             position: "absolute",
             width: "100%",
             height: "100%",
-            backgroundColor: "rgba(0,0,0,0.6)",
           }}
         />
         <Animated.View
@@ -127,8 +135,12 @@ const WeeklyView = ({
             position: "absolute",
             left: anchor.x,
             top: anchor.y,
-            height: "40%",
-            backgroundColor: "rgba(0,0,16,0.8)",
+            height: dropdownHeight,
+            backgroundColor: MEDIUM_BLUE,
+           borderRadius:8,
+            borderWidth: 0.5,
+            borderColor: "#fafafa",
+            overflow: "hidden",
           }}
         >
           <FlatList
@@ -139,7 +151,7 @@ const WeeklyView = ({
             keyExtractor={(_, index) => index.toString()}
           />
         </Animated.View>
-      </View>
+      </Animated.View>
     );
   };
 
@@ -149,20 +161,35 @@ const WeeklyView = ({
     return (
       <View
         style={[
-          { flexDirection: "row", justifyContent: "space-between", padding: 4 },
+          {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            padding: 4,
+            alignItems: "center",
+          },
         ]}
       >
-        <IconButton
-          onPress={() => {
-            const newDates = shiftWeek(dates.start, -1);
-
-            setDates(newDates);
+        <View
+          style={{
+            borderRadius: 99,
+            borderWidth: 0.5,
+            borderColor: "gray",
           }}
-          mode="outlined"
-          icon="arrow-left"
-          style={{ margin: 0 }}
-        />
-
+        >
+          <MaterialCommunityIcons
+            name="arrow-left"
+            size={18}
+            color={"gray"}
+            onPress={() => {
+              const newDates = shiftWeek(dates.start, -1);
+              setDates(newDates);
+            }}
+            style={{
+              padding: 8,
+              aspectRatio: 1,
+            }}
+          />
+        </View>
         <Pressable
           onLayout={(e) => {
             const { x, y } = e.nativeEvent.layout;
@@ -178,10 +205,10 @@ const WeeklyView = ({
           }}
           style={({ pressed }) => [
             {
-              backgroundColor: "rgba(255,255,255,0.2)",
+              backgroundColor: "rgba(255,255,255,0.05)",
               borderRadius: 99,
               padding: 8,
-
+              justifyContent: "center",
               opacity: pressed ? 0.5 : 1,
             },
           ]}
@@ -191,29 +218,46 @@ const WeeklyView = ({
             style={{
               flexDirection: "row",
               justifyContent: "space-around",
+              alignItems: "center",
               gap: 8,
             }}
           >
-            <Text variant="titleMedium">Week {selectedIsoWeek}</Text>
-            <IconButton
-              icon="arrow-down"
-              mode="contained"
-              size={12}
-              style={{ margin: 0, padding: 0 }}
-            />
+            <Text style={{ color: "#fafafa" }}>Week {selectedIsoWeek}</Text>
+            <View style={{ borderRadius: 99, overflow: "hidden" }}>
+              <MaterialCommunityIcons
+                style={{
+                  padding: 6,
+                  backgroundColor: "rgb(40,50,60)",
+                  borderColor: "white",
+                  color: "orange",
+                }}
+                name="arrow-down"
+                size={12}
+              />
+            </View>
           </View>
         </Pressable>
-
-        <IconButton
-          onPress={() => {
-            const newDates = shiftWeek(dates.start, 1);
-
-            setDates(newDates);
+        <View
+          style={{
+            borderRadius: 99,
+            borderWidth: 0.5,
+            borderColor: "gray",
           }}
-          mode="outlined"
-          icon="arrow-right"
-          style={{ margin: 0 }}
-        />
+        >
+          <MaterialCommunityIcons
+            name="arrow-right"
+            size={18}
+            color={"gray"}
+            onPress={() => {
+              const newDates = shiftWeek(dates.start, 1);
+              setDates(newDates);
+            }}
+            style={{
+              padding: 8,
+              aspectRatio: 1,
+            }}
+          />
+        </View>
       </View>
     );
   };
@@ -253,18 +297,24 @@ const WeeklyView = ({
                 }}
               >
                 {i === 0 ? (
-                  <Text variant="bodyMedium">{currentDate.year} </Text>
+                  <Text style={{ color: "#fafafa" }}>{currentDate.year} </Text>
                 ) : (
                   <>
-                    <Text variant="bodyMedium">
+                    <Text style={{ color: "#fafafa" }}>
                       {day.setLocale(locale).weekdayShort}
                     </Text>
-                    <Text style={{ fontSize: 9 }} variant="bodySmall">
+                    <Text
+                      style={{
+                        fontSize: 9,
+                        fontWeight: "200",
+                        color: "#fafafa",
+                      }}
+                    >
                       {day.setLocale(locale).toFormat("MMM dd")}
                     </Text>
 
                     {weekStartYear !== weekdayYear && (
-                      <Text style={{ fontSize: 9 }} variant="bodySmall">
+                      <Text style={{ fontSize: 9, color: "#fafafa" }}>
                         {weekdayYear}
                       </Text>
                     )}
@@ -346,7 +396,6 @@ const WeeklyView = ({
               textAlign: "center",
               textDecorationLine: event.disabled ? "line-through" : "none",
             }}
-            variant="bodySmall"
           >
             {event.name}
           </Text>
@@ -359,7 +408,7 @@ const WeeklyView = ({
     return (
       <View
         style={{
-          backgroundColor: "#rgba(10,10,10,0.4)",
+          backgroundColor: DARK_BLUE,
           borderTopLeftRadius: 8,
           borderTopRightRadius: 8,
         }}
@@ -388,7 +437,7 @@ const WeeklyView = ({
     return (
       <ScrollView
         style={{
-          backgroundColor: "rgba(10,10,10,0.15)",
+          backgroundColor: MEDIUM_BLUE,
           marginBottom: 8,
           borderBottomLeftRadius: 8,
           borderBottomRightRadius: 8,
@@ -405,7 +454,11 @@ const WeeklyView = ({
               }}
             >
               <View style={{ width: COLUMN_WIDTH + "%", alignItems: "center" }}>
-                <Text variant="bodySmall">{time.toFormat("HH:mm")}</Text>
+                <Text
+                  style={{ color: "#fafafa", fontWeight: "100", fontSize: 14 }}
+                >
+                  {time.toFormat("HH:mm")}
+                </Text>
               </View>
 
               <View
@@ -425,7 +478,14 @@ const WeeklyView = ({
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View
+      onLayout={(e) => {
+        const { height, y } = e.nativeEvent.layout;
+
+        parentViewHeight.current = { height, y };
+      }}
+      style={{ flex: 1 }}
+    >
       {renderHeader()}
       {renderTimetable()}
       {renderWeekDropdown()}

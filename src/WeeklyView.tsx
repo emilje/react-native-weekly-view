@@ -17,7 +17,7 @@ import {
 
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { DateTime } from "luxon";
-import { WeeklyViewType } from "./types";
+import { DefaultStyle, EventContainerStyle, WeeklyViewType } from "./types";
 
 const TIMETABLE_START_HOUR = 7;
 const TIMETABLE_END_HOUR = 22;
@@ -25,15 +25,49 @@ const INTERVAL_LENGTH_MINUTES = 30;
 const INTERVAL_HEIGHT = 45;
 const HEIGHT_PER_MINUTE = INTERVAL_HEIGHT / INTERVAL_LENGTH_MINUTES;
 const COLUMN_WIDTH = 100 / 8;
-const LIGHT_BLUE = "rgb(70, 70, 80)";
-const MEDIUM_BLUE = "rgb(30,30,40)";
-const DARK_BLUE = "rgb(25,25,35)";
+
+const DEFAULT_STYLE = {
+  light: {
+    textColor: "black",
+    timetableColor: "#f0f0f0",
+    headerColor: "#fafafa",
+    weekButtonColor: "rgba(0,0,0,0.05)",
+    accentColor: "orange",
+  } as DefaultStyle,
+  dark: {
+    textColor: "#fafafa",
+    timetableColor: "rgb(30,30,40)",
+    headerColor: "rgb(25,25,35)",
+    weekButtonColor: "rgba(255,255,255,0.05)",
+    accentColor: "orange",
+  } as DefaultStyle,
+};
+
+const DEFAULT_EVENT_CONTAINER_STYLE = {
+  light: {
+    backgroundColor: "orange",
+    borderColor: "lightgray",
+    borderWidth: 0.5,
+    disabledColor: "gray",
+    borderRadius: 4,
+  } as EventContainerStyle,
+  dark: {
+    backgroundColor: "darkorange",
+    borderColor: "#fafafa",
+    borderWidth: 1,
+    borderRadius: 4,
+    disabledColor: "gray",
+  } as EventContainerStyle,
+};
 
 const WeeklyView = ({
   events,
   onEventPress,
   locale,
   timezone = "local",
+  theme = "dark",
+  eventContainerStyle,
+  style
 }: WeeklyViewType) => {
   const [dates, setDates] = useState(() => getStartingDates());
   const [isWeekMenu, setIsWeekMenu] = useState(false);
@@ -42,6 +76,11 @@ const WeeklyView = ({
   const dropdownHeight = useRef(new Animated.Value(0)).current;
   const parentViewHeight = useRef({ height: 0, y: 0 });
   const weekDropdownSelectorRef = useRef<View | null>(null);
+  const TEXT_COLOR =style?.textColor || DEFAULT_STYLE[theme].textColor;
+  const TIMETABLE_COLOR = style?.timetableColor || DEFAULT_STYLE[theme].timetableColor;
+  const HEADER_COLOR = style?.headerColor || DEFAULT_STYLE[theme].headerColor;
+  const PRESSABLE_COLOR = style?.weekButtonColor || DEFAULT_STYLE[theme].weekButtonColor;
+  const ACCENT_COLOR = style?.accentColor || DEFAULT_STYLE[theme].accentColor;
 
   useEffect(() => {
     const height = isWeekMenu
@@ -78,19 +117,19 @@ const WeeklyView = ({
             flex: 1,
             flexDirection: "row",
             padding: 8,
-            backgroundColor: MEDIUM_BLUE,
+            backgroundColor: DEFAULT_STYLE[theme].headerColor,
             borderBottomWidth: 0.5,
             borderBottomColor: "gray",
             gap: 8,
             alignItems: "center",
           },
-          currentWeek === weekNumber && { backgroundColor: LIGHT_BLUE },
+          currentWeek === weekNumber && { backgroundColor: "rgba(0,0,0,0.3)" },
         ]}
       >
-        <Text style={{ color: "#fafafa" }}>{`Week ${weekNumber}`}</Text>
+        <Text style={{ color: TEXT_COLOR }}>{`Week ${weekNumber}`}</Text>
         <MaterialCommunityIcons
           name="eye"
-          color="darkorange"
+          color={ACCENT_COLOR}
           size={14}
           style={{ opacity: selectedWeek === weekNumber ? 1 : 0 }}
         />
@@ -136,10 +175,10 @@ const WeeklyView = ({
             left: anchor.x,
             top: anchor.y,
             height: dropdownHeight,
-            backgroundColor: MEDIUM_BLUE,
+            backgroundColor: TIMETABLE_COLOR,
             borderRadius: 8,
             borderWidth: 0.5,
-            borderColor: "#fafafa",
+            borderColor: theme === "dark" ? "#fafafa" : "darkgray",
             overflow: "hidden",
           }}
         >
@@ -169,27 +208,31 @@ const WeeklyView = ({
           },
         ]}
       >
-        <View
-          style={{
-            borderRadius: 99,
-            borderWidth: 0.5,
-            borderColor: "gray",
+        <Pressable
+          onPress={() => {
+            const newDates = shiftWeek(dates.start, -1);
+            setDates(newDates);
           }}
+          style={({ pressed }) => [
+            {
+              borderRadius: 99,
+              borderWidth: 0.5,
+              borderColor: "gray",
+              opacity: pressed ? 0.7 : 1,
+              transform: [{ scale: pressed ? 0.95 : 1 }],
+            },
+          ]}
         >
           <MaterialCommunityIcons
             name="arrow-left"
             size={18}
             color={"gray"}
-            onPress={() => {
-              const newDates = shiftWeek(dates.start, -1);
-              setDates(newDates);
-            }}
             style={{
               padding: 8,
               aspectRatio: 1,
             }}
           />
-        </View>
+        </Pressable>
         <Pressable
           ref={weekDropdownSelectorRef}
           onPress={async (e) => {
@@ -203,7 +246,7 @@ const WeeklyView = ({
           }}
           style={({ pressed }) => [
             {
-              backgroundColor: "rgba(255,255,255,0.05)",
+              backgroundColor: PRESSABLE_COLOR,
               borderRadius: 99,
               padding: 8,
               justifyContent: "center",
@@ -220,14 +263,13 @@ const WeeklyView = ({
               gap: 8,
             }}
           >
-            <Text style={{ color: "#fafafa" }}>Week {selectedIsoWeek}</Text>
+            <Text style={{ color: TEXT_COLOR }}>Week {selectedIsoWeek}</Text>
             <View style={{ borderRadius: 99, overflow: "hidden" }}>
               <MaterialCommunityIcons
                 style={{
                   padding: 6,
-                  backgroundColor: "rgb(40,50,60)",
-                  borderColor: "white",
-                  color: "orange",
+                  backgroundColor:style?.weekIconColor || HEADER_COLOR,
+                  color: ACCENT_COLOR,
                 }}
                 name="arrow-down"
                 size={12}
@@ -235,27 +277,31 @@ const WeeklyView = ({
             </View>
           </View>
         </Pressable>
-        <View
-          style={{
-            borderRadius: 99,
-            borderWidth: 0.5,
-            borderColor: "gray",
+        <Pressable
+          onPress={() => {
+            const newDates = shiftWeek(dates.start, 1);
+            setDates(newDates);
           }}
+          style={({ pressed }) => [
+            {
+              borderRadius: 99,
+              borderWidth: 0.5,
+              borderColor: "gray",
+              opacity: pressed ? 0.7 : 1,
+              transform: [{ scale: pressed ? 0.95 : 1 }],
+            },
+          ]}
         >
           <MaterialCommunityIcons
             name="arrow-right"
             size={18}
             color={"gray"}
-            onPress={() => {
-              const newDates = shiftWeek(dates.start, 1);
-              setDates(newDates);
-            }}
             style={{
               padding: 8,
               aspectRatio: 1,
             }}
           />
-        </View>
+        </Pressable>
       </View>
     );
   };
@@ -291,28 +337,28 @@ const WeeklyView = ({
                   alignItems: "center",
                   alignSelf: i === 0 ? "center" : "flex-start",
                   borderBottomWidth: 2,
-                  borderColor: isDayToday ? "orange" : "transparent",
+                  borderColor: isDayToday ? ACCENT_COLOR : "transparent",
                 }}
               >
                 {i === 0 ? (
-                  <Text style={{ color: "#fafafa" }}>{currentDate.year} </Text>
+                  <Text style={{ color: TEXT_COLOR }}>{currentDate.year} </Text>
                 ) : (
                   <>
-                    <Text style={{ color: "#fafafa" }}>
+                    <Text style={{ color: TEXT_COLOR }}>
                       {day.setLocale(locale).weekdayShort}
                     </Text>
                     <Text
                       style={{
                         fontSize: 9,
                         fontWeight: "200",
-                        color: "#fafafa",
+                        color: TEXT_COLOR,
                       }}
                     >
                       {day.setLocale(locale).toFormat("MMM dd")}
                     </Text>
 
                     {weekStartYear !== weekdayYear && (
-                      <Text style={{ fontSize: 9, color: "#fafafa" }}>
+                      <Text style={{ fontSize: 9, color: TEXT_COLOR }}>
                         {weekdayYear}
                       </Text>
                     )}
@@ -369,13 +415,9 @@ const WeeklyView = ({
           key={event.id}
           style={({ pressed }) => [
             {
+              position: "absolute",
               width: COLUMN_WIDTH * widthRatio + "%",
               height: eventLengthMinutes * HEIGHT_PER_MINUTE,
-              backgroundColor: event.disabled ? "gray" : "orange",
-              borderColor: "white",
-              borderWidth: 1,
-              position: "absolute",
-              borderRadius: 4,
               overflow: "hidden",
               alignItems: "center",
               top:
@@ -383,6 +425,21 @@ const WeeklyView = ({
                 diffTimetableStartMinutes * HEIGHT_PER_MINUTE,
               left: COLUMN_WIDTH * isoWeekday + leftOffset + "%",
               opacity: pressed ? 0.5 : 1,
+              backgroundColor: event.disabled
+                ? eventContainerStyle?.disabledColor ||
+                  DEFAULT_EVENT_CONTAINER_STYLE[theme].disabledColor
+                : event.color ||
+                  eventContainerStyle?.backgroundColor ||
+                  DEFAULT_EVENT_CONTAINER_STYLE[theme].backgroundColor,
+              borderColor:
+                eventContainerStyle?.borderColor ||
+                DEFAULT_EVENT_CONTAINER_STYLE[theme].borderColor,
+              borderWidth:
+                eventContainerStyle?.borderWidth ||
+                DEFAULT_EVENT_CONTAINER_STYLE[theme].borderWidth,
+              borderRadius:
+                eventContainerStyle?.borderRadius ||
+                DEFAULT_EVENT_CONTAINER_STYLE[theme].borderRadius,
             },
           ]}
         >
@@ -393,6 +450,7 @@ const WeeklyView = ({
               flex: 1,
               textAlign: "center",
               textDecorationLine: event.disabled ? "line-through" : "none",
+              color: TEXT_COLOR,
             }}
           >
             {event.name}
@@ -406,7 +464,7 @@ const WeeklyView = ({
     return (
       <View
         style={{
-          backgroundColor: DARK_BLUE,
+          backgroundColor: DEFAULT_STYLE[theme].headerColor,
           borderTopLeftRadius: 8,
           borderTopRightRadius: 8,
         }}
@@ -435,7 +493,7 @@ const WeeklyView = ({
     return (
       <ScrollView
         style={{
-          backgroundColor: MEDIUM_BLUE,
+          backgroundColor: TIMETABLE_COLOR,
           marginBottom: 8,
           borderBottomLeftRadius: 8,
           borderBottomRightRadius: 8,
@@ -453,7 +511,7 @@ const WeeklyView = ({
             >
               <View style={{ width: COLUMN_WIDTH + "%", alignItems: "center" }}>
                 <Text
-                  style={{ color: "#fafafa", fontWeight: "100", fontSize: 14 }}
+                  style={{ color: TEXT_COLOR, fontWeight: "100", fontSize: 14 }}
                 >
                   {time.toFormat("HH:mm")}
                 </Text>

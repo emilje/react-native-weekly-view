@@ -1,4 +1,4 @@
-export type eventType = {
+export type calendarEvent = {
   id: number | string;
   isoStart: string;
   isoEnd: string;
@@ -14,23 +14,26 @@ export type EventContainerStyle = {
   borderWidth?: number;
   borderColor?: string;
   borderRadius?: number;
+  fontSize?: number;
 };
 
 export type DefaultStyle = {
-  textColor?: string,
-  timetableColor?: string,
-  headerColor?: string,
-  weekButtonColor?: string,
-  weekIconColor?: string,
-  accentColor?: string,
-}
+  textColor?: string;
+  timetableColor?: string;
+  headerColor?: string;
+  weekButtonColor?: string;
+  weekIconColor?: string;
+  accentColor?: string;
+  fontSizeHeader?: number;
+  fontSizeTimetable?: number;
+};
 
 export type WeeklyViewType = {
-  events: eventType[];
-  locale: string;
-  onEventPress: (event: eventType) => void;
+  events: calendarEvent[];
+  locale?: string;
+  onEventPress: (event: calendarEvent) => void;
   timezone?: string;
   theme?: "light" | "dark";
   eventContainerStyle?: EventContainerStyle;
-  style?: DefaultStyle
-} ;
+  style?: DefaultStyle;
+};

@@ -33,6 +33,8 @@ const DEFAULT_STYLE = {
     headerColor: "#fafafa",
     weekButtonColor: "rgba(0,0,0,0.05)",
     accentColor: "orange",
+    fontSizeHeader: 12,
+    fontSizeTimetable: 12,
   } as DefaultStyle,
   dark: {
     textColor: "#fafafa",
@@ -40,16 +42,19 @@ const DEFAULT_STYLE = {
     headerColor: "rgb(25,25,35)",
     weekButtonColor: "rgba(255,255,255,0.05)",
     accentColor: "orange",
+    fontSizeHeader: 12,
+    fontSizeTimetable: 12,
   } as DefaultStyle,
 };
 
 const DEFAULT_EVENT_CONTAINER_STYLE = {
   light: {
     backgroundColor: "orange",
-    borderColor: "lightgray",
+    borderColor: "gray",
     borderWidth: 0.5,
     disabledColor: "gray",
     borderRadius: 4,
+    fontSize: 9,
   } as EventContainerStyle,
   dark: {
     backgroundColor: "darkorange",
@@ -57,35 +62,40 @@ const DEFAULT_EVENT_CONTAINER_STYLE = {
     borderWidth: 1,
     borderRadius: 4,
     disabledColor: "gray",
+    fontSize: 9,
   } as EventContainerStyle,
 };
 
 const WeeklyView = ({
   events,
   onEventPress,
-  locale,
+  locale = "en",
   timezone = "local",
   theme = "dark",
   eventContainerStyle,
-  style
+  style,
 }: WeeklyViewType) => {
   const [dates, setDates] = useState(() => getStartingDates());
   const [isWeekMenu, setIsWeekMenu] = useState(false);
   const [anchor, setAnchor] = useState({ x: 0, y: 0 });
   const dropdownOpacity = useRef(new Animated.Value(0)).current;
   const dropdownHeight = useRef(new Animated.Value(0)).current;
-  const parentViewHeight = useRef({ height: 0, y: 0 });
-  const weekDropdownSelectorRef = useRef<View | null>(null);
-  const TEXT_COLOR =style?.textColor || DEFAULT_STYLE[theme].textColor;
-  const TIMETABLE_COLOR = style?.timetableColor || DEFAULT_STYLE[theme].timetableColor;
+  const parentView = useRef({ x: 0, y: 0, width: 0, height: 0 });
+  const parentViewRef = useRef(null);
+  const TEXT_COLOR = style?.textColor || DEFAULT_STYLE[theme].textColor;
+  const TIMETABLE_COLOR =
+    style?.timetableColor || DEFAULT_STYLE[theme].timetableColor;
   const HEADER_COLOR = style?.headerColor || DEFAULT_STYLE[theme].headerColor;
-  const PRESSABLE_COLOR = style?.weekButtonColor || DEFAULT_STYLE[theme].weekButtonColor;
+  const PRESSABLE_COLOR =
+    style?.weekButtonColor || DEFAULT_STYLE[theme].weekButtonColor;
   const ACCENT_COLOR = style?.accentColor || DEFAULT_STYLE[theme].accentColor;
+  const FONTSIZE_HEADER =
+    style?.fontSizeHeader || DEFAULT_STYLE[theme].fontSizeHeader;
+  const FONTSIZE_TIMETABLE =
+    style?.fontSizeTimetable || DEFAULT_STYLE[theme].fontSizeTimetable;
 
   useEffect(() => {
-    const height = isWeekMenu
-      ? (parentViewHeight.current.height - anchor.y) * 0.5
-      : 0;
+    const height = isWeekMenu ? (parentView.current.height - 0) * 0.5 : 0;
     const opacity = isWeekMenu ? 1 : 0;
     Animated.parallel([
       Animated.timing(dropdownOpacity, {
@@ -126,7 +136,9 @@ const WeeklyView = ({
           currentWeek === weekNumber && { backgroundColor: "rgba(0,0,0,0.3)" },
         ]}
       >
-        <Text style={{ color: TEXT_COLOR }}>{`Week ${weekNumber}`}</Text>
+        <Text
+          style={{ color: TEXT_COLOR, fontSize: FONTSIZE_HEADER }}
+        >{`Week ${weekNumber}`}</Text>
         <MaterialCommunityIcons
           name="eye"
           color={ACCENT_COLOR}
@@ -234,13 +246,11 @@ const WeeklyView = ({
           />
         </Pressable>
         <Pressable
-          ref={weekDropdownSelectorRef}
-          onPress={async (e) => {
-            const { pageX, pageY } = await measureView(weekDropdownSelectorRef);
-            const { locationX, locationY } = e.nativeEvent;
+          onPress={(e) => {
+            const { pageX, pageY } = e.nativeEvent;
             setAnchor({
-              x: pageX + locationX,
-              y: pageY + locationY,
+              x: pageX - parentView.current.x,
+              y: pageY - parentView.current.y,
             });
             setIsWeekMenu(true);
           }}
@@ -263,12 +273,14 @@ const WeeklyView = ({
               gap: 8,
             }}
           >
-            <Text style={{ color: TEXT_COLOR }}>Week {selectedIsoWeek}</Text>
+            <Text style={{ color: TEXT_COLOR, fontSize: FONTSIZE_HEADER }}>
+              Week {selectedIsoWeek}
+            </Text>
             <View style={{ borderRadius: 99, overflow: "hidden" }}>
               <MaterialCommunityIcons
                 style={{
                   padding: 6,
-                  backgroundColor:style?.weekIconColor || HEADER_COLOR,
+                  backgroundColor: style?.weekIconColor || HEADER_COLOR,
                   color: ACCENT_COLOR,
                 }}
                 name="arrow-down"
@@ -341,10 +353,16 @@ const WeeklyView = ({
                 }}
               >
                 {i === 0 ? (
-                  <Text style={{ color: TEXT_COLOR }}>{currentDate.year} </Text>
+                  <Text
+                    style={{ color: TEXT_COLOR, fontSize: FONTSIZE_HEADER }}
+                  >
+                    {currentDate.year}{" "}
+                  </Text>
                 ) : (
                   <>
-                    <Text style={{ color: TEXT_COLOR }}>
+                    <Text
+                      style={{ color: TEXT_COLOR, fontSize: FONTSIZE_HEADER }}
+                    >
                       {day.setLocale(locale).weekdayShort}
                     </Text>
                     <Text
@@ -446,7 +464,9 @@ const WeeklyView = ({
           {event.icon}
           <Text
             style={{
-              fontSize: 10,
+              fontSize:
+                eventContainerStyle?.fontSize ||
+                DEFAULT_EVENT_CONTAINER_STYLE[theme].fontSize,
               flex: 1,
               textAlign: "center",
               textDecorationLine: event.disabled ? "line-through" : "none",
@@ -511,7 +531,11 @@ const WeeklyView = ({
             >
               <View style={{ width: COLUMN_WIDTH + "%", alignItems: "center" }}>
                 <Text
-                  style={{ color: TEXT_COLOR, fontWeight: "100", fontSize: 14 }}
+                  style={{
+                    color: TEXT_COLOR,
+                    fontWeight: "100",
+                    fontSize: FONTSIZE_TIMETABLE,
+                  }}
                 >
                   {time.toFormat("HH:mm")}
                 </Text>
@@ -535,9 +559,12 @@ const WeeklyView = ({
 
   return (
     <View
-      onLayout={(e) => {
-        const { height, y } = e.nativeEvent.layout;
-        parentViewHeight.current = { height, y };
+      ref={parentViewRef}
+      onLayout={async (e) => {
+        const { pageX, pageY, width, height } = await measureView(
+          parentViewRef
+        );
+        parentView.current = { x: pageX, y: pageY, width, height };
       }}
       style={{ flex: 1 }}
     >

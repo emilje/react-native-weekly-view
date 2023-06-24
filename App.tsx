@@ -1,9 +1,9 @@
 import { SafeAreaView, StatusBar, View } from "react-native";
 import WeeklyView from "./src/WeeklyView";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { eventType } from "./src/types";
+import { calendarEvent } from "./src/types";
 
-const EVENTS: eventType[] = [
+const EVENTS: calendarEvent[] = [
   {
     id: 1,
     isoStart: "2023-06-23T07:00:00.000+03:00",
@@ -50,23 +50,37 @@ export default function App() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "black" }}>
       <StatusBar />
-      <View style={{ flex: 1 }}>
-        <WeeklyView
-          eventContainerStyle={{}}
-          events={EVENTS}
-          locale="en"
-          onEventPress={(event: eventType) => {
-            console.log("Pressed", event);
-          }}
-        />
-        <WeeklyView
-          theme="light"
-          events={EVENTS}
-          locale="en"
-          onEventPress={(event: eventType) => {
-            console.log("Pressed", event);
-          }}
-        />
+      <View style={{ flex: 1, flexDirection:"row" }}>
+        <View style={{ flex: 1 }}>
+          <WeeklyView
+            events={EVENTS}
+            onEventPress={(event: calendarEvent) => {
+              console.log("Pressed", event);
+            }}
+          />
+          <WeeklyView
+            theme="light"
+            events={EVENTS}
+            onEventPress={(event: calendarEvent) => {
+              console.log("Pressed", event);
+            }}
+          />
+        </View>
+        {/* <View style={{ flex: 1 }}>
+          <WeeklyView
+            events={EVENTS}
+            onEventPress={(event: calendarEvent) => {
+              console.log("Pressed", event);
+            }}
+          />
+          <WeeklyView
+            theme="light"
+            events={EVENTS}
+            onEventPress={(event: calendarEvent) => {
+              console.log("Pressed", event);
+            }}
+          />
+        </View> */}
       </View>
     </SafeAreaView>
   );

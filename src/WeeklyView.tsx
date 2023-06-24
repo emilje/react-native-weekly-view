@@ -6,18 +6,18 @@ import {
   ScrollView,
   View,
   Text,
-  Dimensions,
 } from "react-native";
 import {
   shiftWeek,
   getIntersectingGroups,
   getStartingDates,
-  eventType,
   getDatesByWeek,
+  measureView,
 } from "./WeekViewUtil";
 
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { DateTime } from "luxon";
+import { WeeklyViewType } from "./types";
 
 const TIMETABLE_START_HOUR = 7;
 const TIMETABLE_END_HOUR = 22;
@@ -25,7 +25,7 @@ const INTERVAL_LENGTH_MINUTES = 30;
 const INTERVAL_HEIGHT = 45;
 const HEIGHT_PER_MINUTE = INTERVAL_HEIGHT / INTERVAL_LENGTH_MINUTES;
 const COLUMN_WIDTH = 100 / 8;
-const LIGHT_BLUE = "rgb(70, 70, 80)"
+const LIGHT_BLUE = "rgb(70, 70, 80)";
 const MEDIUM_BLUE = "rgb(30,30,40)";
 const DARK_BLUE = "rgb(25,25,35)";
 
@@ -33,18 +33,15 @@ const WeeklyView = ({
   events,
   onEventPress,
   locale,
-}: {
-  events: any[];
-  locale: string;
-  onEventPress: (event: eventType) => void;
-}): any => {
+  timezone = "local",
+}: WeeklyViewType) => {
   const [dates, setDates] = useState(() => getStartingDates());
   const [isWeekMenu, setIsWeekMenu] = useState(false);
   const [anchor, setAnchor] = useState({ x: 0, y: 0 });
-  const pressableRef = useRef({ x: 0, y: 0 });
   const dropdownOpacity = useRef(new Animated.Value(0)).current;
   const dropdownHeight = useRef(new Animated.Value(0)).current;
   const parentViewHeight = useRef({ height: 0, y: 0 });
+  const weekDropdownSelectorRef = useRef<View | null>(null);
 
   useEffect(() => {
     const height = isWeekMenu
@@ -91,9 +88,12 @@ const WeeklyView = ({
         ]}
       >
         <Text style={{ color: "#fafafa" }}>{`Week ${weekNumber}`}</Text>
-        
-          <MaterialCommunityIcons name="eye" color="darkorange" size={14} style={{opacity:selectedWeek === weekNumber ? 1: 0}} />
-     
+        <MaterialCommunityIcons
+          name="eye"
+          color="darkorange"
+          size={14}
+          style={{ opacity: selectedWeek === weekNumber ? 1 : 0 }}
+        />
       </Pressable>
     );
   };
@@ -114,7 +114,7 @@ const WeeklyView = ({
           position: "absolute",
           width: "100%",
           height: "100%",
-          backgroundColor: "rgba(0,0,0,0.4)",
+          backgroundColor: "transparent",
           opacity: dropdownOpacity,
         }}
       >
@@ -137,7 +137,7 @@ const WeeklyView = ({
             top: anchor.y,
             height: dropdownHeight,
             backgroundColor: MEDIUM_BLUE,
-           borderRadius:8,
+            borderRadius: 8,
             borderWidth: 0.5,
             borderColor: "#fafafa",
             overflow: "hidden",
@@ -191,15 +191,13 @@ const WeeklyView = ({
           />
         </View>
         <Pressable
-          onLayout={(e) => {
-            const { x, y } = e.nativeEvent.layout;
-            pressableRef.current = { x, y };
-          }}
-          onPress={(e) => {
+          ref={weekDropdownSelectorRef}
+          onPress={async (e) => {
+            const { pageX, pageY } = await measureView(weekDropdownSelectorRef);
             const { locationX, locationY } = e.nativeEvent;
             setAnchor({
-              x: pressableRef.current.x + locationX,
-              y: pressableRef.current.y + locationY,
+              x: pageX + locationX,
+              y: pageY + locationY,
             });
             setIsWeekMenu(true);
           }}
@@ -337,9 +335,9 @@ const WeeklyView = ({
 
     const intersectionGroups = getIntersectingGroups(filteredEvents);
 
-    return filteredEvents.map((event: eventType) => {
-      const eventStart = DateTime.fromISO(event.isoStart);
-      const eventEnd = DateTime.fromISO(event.isoEnd);
+    return filteredEvents.map((event) => {
+      const eventStart = DateTime.fromISO(event.isoStart).setZone(timezone);
+      const eventEnd = DateTime.fromISO(event.isoEnd).setZone(timezone);
       const eventLengthMinutes = eventEnd.diff(eventStart, "minutes").minutes;
       const isoWeekday = eventStart.get("weekday");
       const dayStart = eventStart.set({
@@ -481,7 +479,6 @@ const WeeklyView = ({
     <View
       onLayout={(e) => {
         const { height, y } = e.nativeEvent.layout;
-
         parentViewHeight.current = { height, y };
       }}
       style={{ flex: 1 }}

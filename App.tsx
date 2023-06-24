@@ -1,7 +1,7 @@
 import { SafeAreaView, StatusBar, View } from "react-native";
 import WeeklyView from "./src/WeeklyView";
-import { eventType } from "./src/WeekViewUtil";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { eventType } from "./src/types";
 
 const EVENTS: eventType[] = [
   {

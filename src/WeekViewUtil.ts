@@ -1,13 +1,6 @@
-import {DateTime} from "luxon"
-
-export type eventType = {
-  id:number|string,
-  isoStart: string;
-  isoEnd: string;
-  name: string;
-  disabled?: boolean;
-  icon?: JSX.Element
-};
+import { DateTime } from "luxon";
+import { eventType } from "./types";
+import { View } from "react-native";
 
 export const getStartingDates = () => {
   const weekStart = DateTime.now().startOf("week");
@@ -18,36 +11,38 @@ export const getStartingDates = () => {
 
 export const shiftWeek = (currentWeekStart: DateTime, direction: number) => {
   let newWeekStart = currentWeekStart.plus({ week: direction });
-  
+
   if (newWeekStart.weekday !== 1) {
     newWeekStart = newWeekStart.startOf("week");
   }
-  
+
   const weekEnd = newWeekStart.endOf("week");
   return { start: newWeekStart, end: weekEnd };
 };
 
-export const getDatesByWeek = (currentWeekStart: DateTime, weekNumber: number) => {
+export const getDatesByWeek = (
+  currentWeekStart: DateTime,
+  weekNumber: number
+) => {
   let newWeekStart = currentWeekStart.set({ weekNumber });
-  
+
   if (newWeekStart.get("weekday") !== 1) {
     newWeekStart = newWeekStart.startOf("week");
   }
-  
+
   const weekEnd = newWeekStart.endOf("week");
   return { start: newWeekStart, end: weekEnd };
 };
 
 export const getIntersectingGroups = (events: eventType[]) => {
   let currentGroup = 0;
-  const groups: { [key: number]: any[number|string] } = { 0: [] };
+  const groups: { [key: number]: any[number | string] } = { 0: [] };
 
-  events = events.sort((a,b) => {
+  events = events.sort((a, b) => {
     const startA = DateTime.fromISO(a.isoStart);
     const startB = DateTime.fromISO(b.isoStart);
     return startA >= startB ? 1 : -1;
-  }
-  )
+  });
 
   for (let i = 0; i < events.length; i++) {
     const event = events[i];
@@ -89,4 +84,21 @@ export const getIntersectingGroups = (events: eventType[]) => {
   }
 
   return filteredGroups;
+};
+
+export const measureView = async (
+  viewRef: React.RefObject<View>
+): Promise<{
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  pageX: number;
+  pageY: number;
+}> => {
+  return new Promise((res) =>
+    viewRef.current?.measure((x, y, width, height, pageX, pageY) => {
+      res({ x, y, width, height, pageX, pageY });
+    })
+  );
 };

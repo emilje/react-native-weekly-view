@@ -26,6 +26,8 @@ export type DefaultStyle = {
   accentColor?: string;
   fontSizeHeader?: number;
   fontSizeTimetable?: number;
+  dropdownCurrentWeekColor?: string;
+  dropdownColor?:string
 };
 
 export type WeeklyViewType = {

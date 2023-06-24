@@ -35,6 +35,9 @@ const DEFAULT_STYLE = {
     accentColor: "orange",
     fontSizeHeader: 12,
     fontSizeTimetable: 12,
+    dropdownCurrentWeekColor:"rgba(0,0,0,0.1)",
+    dropdownColor:"#fafafa"
+    
   } as DefaultStyle,
   dark: {
     textColor: "#fafafa",
@@ -44,6 +47,8 @@ const DEFAULT_STYLE = {
     accentColor: "orange",
     fontSizeHeader: 12,
     fontSizeTimetable: 12,
+    dropdownCurrentWeekColor:"rgba(255,255,255,0.1)",
+    dropdownColor:"rgb(25,25,35)",
   } as DefaultStyle,
 };
 
@@ -93,6 +98,8 @@ const WeeklyView = ({
     style?.fontSizeHeader || DEFAULT_STYLE[theme].fontSizeHeader;
   const FONTSIZE_TIMETABLE =
     style?.fontSizeTimetable || DEFAULT_STYLE[theme].fontSizeTimetable;
+    const DROPDOWN_CURRENT_WEEK_COLOR = style?.dropdownCurrentWeekColor || DEFAULT_STYLE[theme].dropdownCurrentWeekColor
+    const DROPDOWN_COLOR = style?.dropdownColor || DEFAULT_STYLE[theme].dropdownColor
 
   useEffect(() => {
     const height = isWeekMenu ? (parentView.current.height - 0) * 0.5 : 0;
@@ -127,13 +134,12 @@ const WeeklyView = ({
             flex: 1,
             flexDirection: "row",
             padding: 8,
-            backgroundColor: DEFAULT_STYLE[theme].headerColor,
             borderBottomWidth: 0.5,
             borderBottomColor: "gray",
             gap: 8,
             alignItems: "center",
           },
-          currentWeek === weekNumber && { backgroundColor: "rgba(0,0,0,0.3)" },
+          currentWeek === weekNumber && { backgroundColor: DROPDOWN_CURRENT_WEEK_COLOR },
         ]}
       >
         <Text
@@ -187,7 +193,7 @@ const WeeklyView = ({
             left: anchor.x,
             top: anchor.y,
             height: dropdownHeight,
-            backgroundColor: TIMETABLE_COLOR,
+            backgroundColor: DROPDOWN_COLOR,
             borderRadius: 8,
             borderWidth: 0.5,
             borderColor: theme === "dark" ? "#fafafa" : "darkgray",
@@ -438,6 +444,7 @@ const WeeklyView = ({
               height: eventLengthMinutes * HEIGHT_PER_MINUTE,
               overflow: "hidden",
               alignItems: "center",
+              padding:2,
               top:
                 INTERVAL_HEIGHT / 2 +
                 diffTimetableStartMinutes * HEIGHT_PER_MINUTE,
@@ -484,7 +491,7 @@ const WeeklyView = ({
     return (
       <View
         style={{
-          backgroundColor: DEFAULT_STYLE[theme].headerColor,
+          backgroundColor: HEADER_COLOR,
           borderTopLeftRadius: 8,
           borderTopRightRadius: 8,
         }}

@@ -35,9 +35,8 @@ const DEFAULT_STYLE = {
     accentColor: "orange",
     fontSizeHeader: 12,
     fontSizeTimetable: 12,
-    dropdownCurrentWeekColor:"rgba(0,0,0,0.1)",
-    dropdownColor:"#fafafa"
-    
+    dropdownCurrentWeekColor: "rgba(0,0,0,0.1)",
+    dropdownColor: "#fafafa",
   } as DefaultStyle,
   dark: {
     textColor: "#fafafa",
@@ -47,8 +46,8 @@ const DEFAULT_STYLE = {
     accentColor: "orange",
     fontSizeHeader: 12,
     fontSizeTimetable: 12,
-    dropdownCurrentWeekColor:"rgba(255,255,255,0.1)",
-    dropdownColor:"rgb(25,25,35)",
+    dropdownCurrentWeekColor: "rgba(255,255,255,0.1)",
+    dropdownColor: "rgb(25,25,35)",
   } as DefaultStyle,
 };
 
@@ -98,8 +97,11 @@ const WeeklyView = ({
     style?.fontSizeHeader || DEFAULT_STYLE[theme].fontSizeHeader;
   const FONTSIZE_TIMETABLE =
     style?.fontSizeTimetable || DEFAULT_STYLE[theme].fontSizeTimetable;
-    const DROPDOWN_CURRENT_WEEK_COLOR = style?.dropdownCurrentWeekColor || DEFAULT_STYLE[theme].dropdownCurrentWeekColor
-    const DROPDOWN_COLOR = style?.dropdownColor || DEFAULT_STYLE[theme].dropdownColor
+  const DROPDOWN_CURRENT_WEEK_COLOR =
+    style?.dropdownCurrentWeekColor ||
+    DEFAULT_STYLE[theme].dropdownCurrentWeekColor;
+  const DROPDOWN_COLOR =
+    style?.dropdownColor || DEFAULT_STYLE[theme].dropdownColor;
 
   useEffect(() => {
     const height = isWeekMenu ? (parentView.current.height - 0) * 0.5 : 0;
@@ -139,7 +141,9 @@ const WeeklyView = ({
             gap: 8,
             alignItems: "center",
           },
-          currentWeek === weekNumber && { backgroundColor: DROPDOWN_CURRENT_WEEK_COLOR },
+          currentWeek === weekNumber && {
+            backgroundColor: DROPDOWN_CURRENT_WEEK_COLOR,
+          },
         ]}
       >
         <Text
@@ -444,7 +448,7 @@ const WeeklyView = ({
               height: eventLengthMinutes * HEIGHT_PER_MINUTE,
               overflow: "hidden",
               alignItems: "center",
-              padding:2,
+              padding: 2,
               top:
                 INTERVAL_HEIGHT / 2 +
                 diffTimetableStartMinutes * HEIGHT_PER_MINUTE,

@@ -19,9 +19,6 @@ import { DateTime } from "luxon";
 import { DefaultStyle, EventContainerStyle, WeeklyViewType } from "./types";
 import Arrow from "./Arrow";
 
-const INTERVAL_LENGTH_MINUTES = 30;
-const INTERVAL_HEIGHT = 45;
-const HEIGHT_PER_MINUTE = INTERVAL_HEIGHT / INTERVAL_LENGTH_MINUTES;
 const COLUMN_WIDTH = 100 / 8;
 
 const DEFAULT_STYLE = {
@@ -82,6 +79,8 @@ const WeeklyView = ({
   style,
   timetableStartHour = 7,
   timetableEndHour = 22,
+  intervalHeight = 45,
+  intervalLengthMinutes =30
 }: WeeklyViewType) => {
   const [dates, setDates] = useState(() => getStartingDates());
   const [isWeekMenu, setIsWeekMenu] = useState(false);
@@ -90,6 +89,7 @@ const WeeklyView = ({
   const dropdownHeight = useRef(new Animated.Value(0)).current;
   const parentView = useRef({ x: 0, y: 0, width: 0, height: 0 });
   const parentViewRef = useRef(null);
+  const heightPerMinute = intervalHeight / intervalLengthMinutes;
   const HEADER_TEXT_COLOR =
     style?.headerTextColor ?? DEFAULT_STYLE[theme].headerTextColor;
   const TIMETABLE_TEXT_COLOR =
@@ -475,13 +475,13 @@ const WeeklyView = ({
             {
               position: "absolute",
               width: COLUMN_WIDTH * widthRatio + "%",
-              height: eventLengthMinutes * HEIGHT_PER_MINUTE,
+              height: eventLengthMinutes * heightPerMinute,
               overflow: "hidden",
               alignItems: "center",
               padding: 2,
               top:
-                INTERVAL_HEIGHT / 2 +
-                diffTimetableStartMinutes * HEIGHT_PER_MINUTE,
+                intervalHeight / 2 +
+                diffTimetableStartMinutes * heightPerMinute,
               left: COLUMN_WIDTH * isoWeekday + leftOffset + "%",
               opacity: pressed ? 0.5 : 1,
               backgroundColor: event.disabled
@@ -540,7 +540,7 @@ const WeeklyView = ({
 
   const renderTimetable = () => {
     const intervals =
-      ((timetableEndHour - timetableStartHour) * 60) / INTERVAL_LENGTH_MINUTES;
+      ((timetableEndHour - timetableStartHour) * 60) / intervalLengthMinutes;
 
     const startTime = DateTime.now().set({
       hour: timetableStartHour,
@@ -549,7 +549,7 @@ const WeeklyView = ({
 
     const times = [];
     for (let i = 0; i <= intervals; i++) {
-      times.push(startTime.plus({ minutes: INTERVAL_LENGTH_MINUTES * i }));
+      times.push(startTime.plus({ minutes: intervalLengthMinutes * i }));
     }
 
     return (
@@ -567,7 +567,7 @@ const WeeklyView = ({
               key={time.toString()}
               style={{
                 flexDirection: "row",
-                height: INTERVAL_HEIGHT,
+                height: intervalHeight,
                 alignItems: "center",
               }}
             >

@@ -42,8 +42,10 @@ export type WeeklyViewType = {
   theme?: "light" | "dark";
   eventContainerStyle?: EventContainerStyle;
   style?: DefaultStyle;
-  timetableStartHour?:number,
-  timetableEndHour?:number
+  timetableStartHour?: number;
+  timetableEndHour?: number;
+  intervalLengthMinutes?: number;
+  intervalHeight?: number;
 };
 
 export type ArrowType = {

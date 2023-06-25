@@ -54,6 +54,7 @@ export default function App() {
         <View style={{ flex: 1 }}>
           <WeeklyView
             timetableStartHour={5}
+            intervalHeight={15}
             timezone="Europe/Zagreb"
             events={EVENTS}
             onEventPress={(event: calendarEvent) => {
@@ -61,6 +62,7 @@ export default function App() {
             }}
           />
           <WeeklyView
+            intervalLengthMinutes={60}
             theme="light"
             events={EVENTS}
             onEventPress={(event: calendarEvent) => {

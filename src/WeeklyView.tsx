@@ -81,6 +81,7 @@ const WeeklyView = ({
   timetableEndHour = 22,
   intervalHeight = 45,
   intervalLengthMinutes = 30,
+  translationWeek = "Week",
 }: WeeklyViewType) => {
   const [dates, setDates] = useState(() => getStartingDates());
   const [isWeekMenu, setIsWeekMenu] = useState(false);
@@ -162,7 +163,7 @@ const WeeklyView = ({
         >
           <Text
             style={{ color: HEADER_TEXT_COLOR, fontSize: FONTSIZE_HEADER }}
-          >{`Week ${weekNumber}`}</Text>
+          >{`${translationWeek} ${weekNumber}`}</Text>
           <Image
             source={require("./assets/eye.png")}
             style={[
@@ -196,6 +197,7 @@ const WeeklyView = ({
     DROPDOWN_CURRENT_WEEK_COLOR,
     FONTSIZE_HEADER,
     HEADER_TEXT_COLOR,
+    translationWeek,
   ]);
 
   const renderWeekDropdown = () => {
@@ -313,7 +315,7 @@ const WeeklyView = ({
             <Text
               style={{ color: HEADER_TEXT_COLOR, fontSize: FONTSIZE_HEADER }}
             >
-              Week {selectedIsoWeek}
+              {translationWeek} {selectedIsoWeek}
             </Text>
             <Arrow
               orientation="DOWN"

@@ -46,6 +46,7 @@ export type WeeklyViewType = {
   timetableEndHour?: number;
   intervalLengthMinutes?: number;
   intervalHeight?: number;
+  translationWeek?: string;
 };
 
 export type ArrowType = {

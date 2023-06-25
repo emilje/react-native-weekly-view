@@ -6,6 +6,7 @@ import {
   ScrollView,
   View,
   Text,
+  Image,
 } from "react-native";
 import {
   shiftWeek,
@@ -14,7 +15,6 @@ import {
   getDatesByWeek,
   measureView,
 } from "./WeekViewUtil";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { DateTime } from "luxon";
 import { DefaultStyle, EventContainerStyle, WeeklyViewType } from "./types";
 import Arrow from "./Arrow";
@@ -80,7 +80,7 @@ const WeeklyView = ({
   timetableStartHour = 7,
   timetableEndHour = 22,
   intervalHeight = 45,
-  intervalLengthMinutes =30
+  intervalLengthMinutes = 30,
 }: WeeklyViewType) => {
   const [dates, setDates] = useState(() => getStartingDates());
   const [isWeekMenu, setIsWeekMenu] = useState(false);
@@ -163,11 +163,16 @@ const WeeklyView = ({
           <Text
             style={{ color: HEADER_TEXT_COLOR, fontSize: FONTSIZE_HEADER }}
           >{`Week ${weekNumber}`}</Text>
-          <MaterialCommunityIcons
-            name="eye"
-            color={ACCENT_COLOR}
-            size={14}
-            style={{ opacity: selectedWeek === weekNumber ? 1 : 0 }}
+          <Image
+            source={require("./assets/eye.png")}
+            style={[
+              {
+                width: 14,
+                aspectRatio: 1,
+                tintColor: ACCENT_COLOR,
+                opacity: selectedWeek === weekNumber ? 1 : 0,
+              },
+            ]}
           />
         </Pressable>
       );

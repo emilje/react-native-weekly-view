@@ -85,16 +85,15 @@ export default function App() {
       <StatusBar translucent={false} barStyle="light-content" />
       <View style={{ flex: 1 }}>
         <WeeklyView
+          timetableStartHour={6}
           timezone={timezone}
           events={EVENTS}
           onEventPress={(event) => {
-            const eventStart = DateTime.fromISO(event.isoStart)
+            const eventStart = DateTime.fromISO(event.isoStart);
             const eventEnd = DateTime.fromISO(event.isoEnd);
             const length = eventEnd.diff(eventStart, ["hours", "minutes"]);
             Alert.alert(
-              `${event.name} (${length.hours}:${
-                length.minutes
-              }h)` ,
+              `${event.name} (${length.hours}:${length.minutes}h)`,
               `Event timezone \nFrom ${eventStart.toFormat(
                 "HH:mm"
               )} to ${eventEnd.toFormat("HH:mm")}.

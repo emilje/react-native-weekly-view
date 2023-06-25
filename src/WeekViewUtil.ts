@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
-import { eventType } from "./types";
 import { View } from "react-native";
+import { calendarEvent } from "./types";
 
 export const getStartingDates = () => {
   const weekStart = DateTime.now().startOf("week");
@@ -34,7 +34,7 @@ export const getDatesByWeek = (
   return { start: newWeekStart, end: weekEnd };
 };
 
-export const getIntersectingGroups = (events: eventType[]) => {
+export const getIntersectingGroups = (events: calendarEvent[]) => {
   let currentGroup = 0;
   const groups: { [key: number]: any[number | string] } = { 0: [] };
 

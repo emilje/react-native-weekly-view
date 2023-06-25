@@ -1,5 +1,5 @@
 {
-  "name": "react-native-weekly-view",
+  "name": "example",
   "version": "1.0.0",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
@@ -7,12 +7,14 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build": "npx tsc --noEmit false --declaration && cpy \"src/**/*.!(ts|tsx)\" dist"
+    "build": "npx tsc --noEmit false --declaration",
+    "copy": "cpy \"src/**/*.!(ts|tsx)\" dist"
   },
   "dependencies": {
     "luxon": "^3.3.0",
     "react": "18.2.0",
-    "react-native": "0.71.8"
+    "react-native": "0.71.8",
+    "react-native-weekly-view": "../react-native-weekly-view-1.0.0.tgz"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

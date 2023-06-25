@@ -1,4 +1,5 @@
-import { SafeAreaView, StatusBar, View, Text } from "react-native";
+import React from "react";
+import { SafeAreaView, View } from "react-native";
 import WeeklyView from "./src/WeeklyView";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { calendarEvent } from "./src/types";
@@ -49,10 +50,11 @@ const EVENTS: calendarEvent[] = [
 export default function App() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "black" }}>
-      <StatusBar />
       <View style={{ flex: 1, flexDirection: "row" }}>
         <View style={{ flex: 1 }}>
           <WeeklyView
+            timetableStartHour={5}
+            timezone="Europe/Zagreb"
             events={EVENTS}
             onEventPress={(event: calendarEvent) => {
               console.log("Pressed", event);
@@ -66,21 +68,23 @@ export default function App() {
             }}
           />
         </View>
-        {/* <View style={{ flex: 1 }}>
+        <View style={{ flex: 1 }}>
           <WeeklyView
+            theme="dark"
+            style={{ headerTextColor: "pink", timetableTextColor: "lightblue" }}
+            eventContainerStyle={{ textColor: "purple", borderWidth: 0 }}
             events={EVENTS}
             onEventPress={(event: calendarEvent) => {
               console.log("Pressed", event);
             }}
           />
           <WeeklyView
-            theme="light"
             events={EVENTS}
             onEventPress={(event: calendarEvent) => {
               console.log("Pressed", event);
             }}
           />
-        </View> */}
+        </View>
       </View>
     </SafeAreaView>
   );

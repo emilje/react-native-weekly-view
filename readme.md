@@ -1,6 +1,6 @@
 # react-native-weekly-view
 ### Calendars made simple!
-![](https://img.shields.io/github/release/emilje/react-native-weekly-view.svg)
+![](https://img.shields.io/github/release/emilje/react-native-weekly-view.svg?color=green)
 ![](https://img.shields.io/github/stars/emilje/react-native-weekly-view.svg?color=blue)
 ![](https://img.shields.io/github/issues/emilje/react-native-weekly-view.svg?color=red)
 <br/>

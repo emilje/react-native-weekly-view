@@ -133,8 +133,8 @@ export default function App() {
       <View style={{ flex: 1, flexDirection: "row" }}>
         <View style={{ flex: 1 }}>
           <WeeklyView
-            // showWeekend={false}
-            style={{ fontSizeTimetable: 10, fontSizeHeader: 9, dropdownSelectedWeekIcon: <MaterialCommunityIcons name="ab-testing" color={"white"} size={12} /> }}
+            showWeekend={false}
+            // style={{ fontSizeTimetable: 10, fontSizeHeader: 9, dropdownSelectedWeekIcon: <MaterialCommunityIcons name="ab-testing" color={"white"} size={12} /> }}
             timezone="Europe/Helsinki"
             events={EVENTS}
             onEventPress={(event: calendarEvent) => {

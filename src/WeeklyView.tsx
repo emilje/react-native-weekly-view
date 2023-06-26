@@ -7,6 +7,7 @@ import {
   View,
   Text,
   Image,
+  Easing,
 } from "react-native";
 import {
   shiftWeek,
@@ -88,11 +89,15 @@ const WeeklyView = ({
   const [dates, setDates] = useState(() => getStartingDates());
   const [isWeekMenu, setIsWeekMenu] = useState(false);
   const [anchor, setAnchor] = useState({ x: 0, y: 0 });
-  const dropdownOpacity = useRef(new Animated.Value(0)).current;
   const dropdownHeight = useRef(new Animated.Value(0)).current;
   const parentView = useRef({ x: 0, y: 0, width: 0, height: 0 });
   const parentViewRef = useRef(null);
-  const heightPerMinute = intervalHeight / intervalLengthMinutes;
+  const selectedWeek = dates.start.weekNumber;
+  const { weekNumber: currentWeek, year: currentYear } = DateTime.now();
+  const numOfWeeks = dates.start.weeksInWeekYear;
+  const columnWidthPer = showWeekend ? 100 / 8 : 100 / 6;
+  const dropdownRef = useRef<any>(null);
+  const HEIGHT_PER_MINUTE = intervalHeight / intervalLengthMinutes;
   const HEADER_TEXT_COLOR =
     style?.headerTextColor ?? DEFAULT_STYLE[theme].headerTextColor;
   const TIMETABLE_TEXT_COLOR =
@@ -111,31 +116,29 @@ const WeeklyView = ({
   const DROPDOWN_COLOR =
     style?.dropdownColor ?? DEFAULT_STYLE[theme].dropdownColor;
   const ARROW_COLOR = style?.arrowColor ?? DEFAULT_STYLE[theme].arrowColor;
-  const selectedWeek = dates.start.weekNumber;
-  const currentWeek = DateTime.now().weekNumber;
-  const numOfWeeks = dates.start.weeksInWeekYear;
-  const columnWidthPer = showWeekend ? 100 / 8 : 100 / 6;
+
   const numOfWeeksArr = useMemo(() => {
     return Array(numOfWeeks).fill("");
   }, [numOfWeeks]);
 
   useEffect(() => {
     const height = isWeekMenu
-      ? (parentView.current.height - anchor.y) * 0.5
+      ? (anchor.y + parentView.current.height) * 0.5
       : 0;
-    const opacity = isWeekMenu ? 1 : 0;
-    Animated.parallel([
-      Animated.timing(dropdownOpacity, {
-        useNativeDriver: false,
-        toValue: opacity,
-        duration: 300,
-      }),
-      Animated.timing(dropdownHeight, {
-        useNativeDriver: false,
-        toValue: height,
-        duration: 200,
-      }),
-    ]).start();
+
+    Animated.timing(dropdownHeight, {
+      useNativeDriver: false,
+      duration: 250,
+      toValue: height,
+      easing: Easing.out(Easing.ease),
+    }).start(() => {
+      if (!isWeekMenu) {
+        dropdownRef.current.scrollToIndex({
+          index: Math.max(selectedWeek - 1, 0),
+          animated: false,
+        });
+      }
+    });
   }, [isWeekMenu]);
 
   const renderFlatlist = useMemo(() => {
@@ -155,10 +158,12 @@ const WeeklyView = ({
               borderBottomColor: "gray",
               gap: 8,
               alignItems: "center",
+              height: 35,
             },
-            currentWeek === weekNumber && {
-              backgroundColor: DROPDOWN_CURRENT_WEEK_COLOR,
-            },
+            currentWeek === weekNumber &&
+              dates.start.year === currentYear && {
+                backgroundColor: DROPDOWN_CURRENT_WEEK_COLOR,
+              },
           ]}
         >
           <Text
@@ -189,9 +194,12 @@ const WeeklyView = ({
 
     return (
       <FlatList
+        ref={dropdownRef}
         data={numOfWeeksArr}
         renderItem={({ index }) => renderItem(index + 1)}
         keyExtractor={(_, index) => index.toString()}
+        initialNumToRender={dates.start.weeksInWeekYear}
+        onScrollToIndexFailed={() => {}}
       />
     );
   }, [
@@ -206,7 +214,7 @@ const WeeklyView = ({
     FONTSIZE_HEADER,
     HEADER_TEXT_COLOR,
     translationWeek,
-    style?.dropdownSelectedWeekIcon
+    style?.dropdownSelectedWeekIcon,
   ]);
 
   const renderWeekDropdown = () => {
@@ -220,8 +228,6 @@ const WeeklyView = ({
           position: "absolute",
           width: "100%",
           height: "100%",
-          backgroundColor: "transparent",
-          opacity: dropdownOpacity,
         }}
       >
         <Pressable
@@ -235,21 +241,29 @@ const WeeklyView = ({
           }}
         />
         <Animated.View
-          id={"animatedView"}
+          pointerEvents={"box-none"}
           style={{
-            flex: 1,
-            position: "absolute",
-            left: anchor.x,
-            top: anchor.y,
             height: dropdownHeight,
-            backgroundColor: DROPDOWN_COLOR,
-            borderRadius: 8,
-            borderWidth: 0.5,
-            borderColor: theme === "dark" ? "#fafafa" : "darkgray",
             overflow: "hidden",
           }}
         >
-          {renderFlatlist}
+          <Animated.View
+            id={"animatedView"}
+            style={{
+              flex: 1,
+              position: "absolute",
+              left: anchor.x,
+              top: anchor.y,
+              height: (parentView.current.height - anchor.y) * 0.5,
+              backgroundColor: DROPDOWN_COLOR,
+              borderRadius: 8,
+              borderWidth: 0.5,
+              borderColor: theme === "dark" ? "#fafafa" : "darkgray",
+              overflow: "hidden",
+            }}
+          >
+            {renderFlatlist}
+          </Animated.View>
         </Animated.View>
       </Animated.View>
     );
@@ -493,13 +507,13 @@ const WeeklyView = ({
             {
               position: "absolute",
               width: columnWidthPer * widthRatio + "%",
-              height: eventLengthMinutes * heightPerMinute,
+              height: eventLengthMinutes * HEIGHT_PER_MINUTE,
               overflow: "hidden",
               alignItems: "center",
               padding: 2,
               top:
                 intervalHeight / 2 +
-                diffTimetableStartMinutes * heightPerMinute,
+                diffTimetableStartMinutes * HEIGHT_PER_MINUTE,
               left: columnWidthPer * isoWeekday + leftOffsetPer + "%",
               opacity: pressed ? 0.5 : 1,
               backgroundColor: event.disabled

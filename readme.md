@@ -5,6 +5,7 @@
 ![](https://img.shields.io/github/issues/emilje/react-native-weekly-view.svg?color=red)
 <br/>
 ![preview](https://raw.githubusercontent.com/emilje/react-native-weekly-view/main/images/preview.png)<br/>
+###### Device mockups created at [deviceframes.](https://deviceframes.com/) 
 
 ## Installation
 Use npm or yarn.
@@ -60,8 +61,10 @@ WeeklyView is highly customizable and allows you to change colors, font sizes an
   intervalLengthMinutes,
   intervalHeight,
 ```
-![preview](https://raw.githubusercontent.com/emilje/react-native-weekly-view/main/images/preview-customization.png)<br/>
 Please check [props](#props) below for more information.
+![preview](https://raw.githubusercontent.com/emilje/react-native-weekly-view/main/images/preview-customization.png)<br/>
+###### Device mockup created at [deviceframes.](https://deviceframes.com/) 
+
 
 ## Example
 To run the example, clone the project ```git clone https://github.com/emilje/react-native-weekly-view.git```, navigate into the example folder ```cd example``` and run ```npm i```.<br/>

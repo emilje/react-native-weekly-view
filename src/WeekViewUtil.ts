@@ -34,15 +34,30 @@ export const getDatesByWeek = (
   return { start: newWeekStart, end: weekEnd };
 };
 
-export const getIntersectingGroups = (events: calendarEvent[]) => {
-  let currentGroup = 0;
-  const groups: { [key: number]: any[number | string] } = { 0: [] };
+export const filterAndSortEvents = (
+  events: calendarEvent[],
+  dates: { start: DateTime; end: DateTime }
+) => {
+  const filteredEvents = events.filter((event) => {
+    const startDate = DateTime.fromISO(event.isoStart);
 
-  events = events.sort((a, b) => {
+    return startDate >= dates.start && startDate <= dates.start.endOf("week");
+  });
+
+  filteredEvents.sort((a, b) => {
     const startA = DateTime.fromISO(a.isoStart);
     const startB = DateTime.fromISO(b.isoStart);
     return startA >= startB ? 1 : -1;
   });
+
+  return filteredEvents;
+};
+
+export const getIntersectingGroups = (events: calendarEvent[]) => {
+  let currentGroup = 0;
+  const groups: { [key: number]: any[number | string] } = { 0: [] };
+
+  
 
   for (let i = 0; i < events.length; i++) {
     const event = events[i];

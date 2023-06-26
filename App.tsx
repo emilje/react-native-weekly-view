@@ -133,6 +133,7 @@ export default function App() {
       <View style={{ flex: 1, flexDirection: "row" }}>
         <View style={{ flex: 1 }}>
           <WeeklyView
+            // showWeekend={false}
             timezone="Europe/Helsinki"
             events={EVENTS}
             onEventPress={(event: calendarEvent) => {

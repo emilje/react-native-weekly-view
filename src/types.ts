@@ -47,6 +47,7 @@ export type WeeklyViewType = {
   intervalLengthMinutes?: number;
   intervalHeight?: number;
   translationWeek?: string;
+  showWeekend?: boolean;
 };
 
 export type ArrowType = {

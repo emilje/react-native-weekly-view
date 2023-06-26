@@ -14,12 +14,11 @@ import {
   getStartingDates,
   getDatesByWeek,
   measureView,
+  filterAndSortEvents,
 } from "./WeekViewUtil";
 import { DateTime } from "luxon";
 import { DefaultStyle, EventContainerStyle, WeeklyViewType } from "./types";
 import Arrow from "./Arrow";
-
-const COLUMN_WIDTH = 100 / 8;
 
 const DEFAULT_STYLE = {
   light: {
@@ -82,6 +81,7 @@ const WeeklyView = ({
   intervalHeight = 45,
   intervalLengthMinutes = 30,
   translationWeek = "Week",
+  showWeekend = true,
 }: WeeklyViewType) => {
   const [dates, setDates] = useState(() => getStartingDates());
   const [isWeekMenu, setIsWeekMenu] = useState(false);
@@ -113,11 +113,10 @@ const WeeklyView = ({
   const selectedWeek = dates.start.weekNumber;
   const currentWeek = DateTime.now().weekNumber;
   const numOfWeeks = dates.start.weeksInWeekYear;
+  const columnWidthPer = showWeekend ? 100 / 8 : 100 / 6;
   const arr = useMemo(() => {
     return Array(numOfWeeks).fill("");
   }, [numOfWeeks]);
-
-  // console.log(IconComponent)
 
   useEffect(() => {
     const height = isWeekMenu
@@ -362,56 +361,65 @@ const WeeklyView = ({
   const renderWeekdays = () => {
     const currentDate = dates.start;
     const weekdays: DateTime[] = [currentDate];
-    for (let i = 0; i < 7; i++) {
+    const days = showWeekend ? 7 : 5;
+    for (let i = 0; i < days; i++) {
       weekdays[i + 1] = dates.start.plus({ days: i });
     }
 
     return (
-      <View style={{ flexDirection: "row" }}>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            width: "100%",
-          }}
-        >
-          {weekdays.map((day, i) => {
-            const weekStartYear = dates.start.year;
-            const weekdayYear = day.year;
-            const isDayToday = day.hasSame(DateTime.now(), "day");
+      <View
+        style={{
+          flexDirection: "row",
+          marginTop: 8,
+        }}
+      >
+        {weekdays.map((day, i) => {
+          const weekStartYear = dates.start.year;
+          const weekdayYear = day.year;
+          const isDayToday = i !== 0 && day.hasSame(DateTime.now(), "day");
 
-            return (
-              <View
-                key={i}
-                style={{
-                  flex: 1,
-                  paddingBottom: 8,
-                  alignItems: "center",
-                  alignSelf: i === 0 ? "center" : "flex-start",
-                  borderBottomWidth: 2,
-                  borderColor: isDayToday ? ACCENT_COLOR : "transparent",
-                }}
-              >
-                {i === 0 ? (
+          return (
+            <View
+              key={i}
+              style={{
+                flex: 1,
+                paddingBottom: 8,
+                alignItems: "center",
+                alignSelf: i === 0 ? "center" : "flex-start",
+                borderBottomWidth: 2,
+                borderColor: isDayToday ? ACCENT_COLOR : "transparent",
+              }}
+            >
+              {i === 0 ? (
+                <Text
+                  style={{
+                    color: HEADER_TEXT_COLOR,
+                    fontSize: FONTSIZE_HEADER,
+                  }}
+                >
+                  {currentDate.year}{" "}
+                </Text>
+              ) : (
+                <>
                   <Text
                     style={{
                       color: HEADER_TEXT_COLOR,
                       fontSize: FONTSIZE_HEADER,
                     }}
                   >
-                    {currentDate.year}{" "}
+                    {day.setLocale(locale).weekdayShort}
                   </Text>
-                ) : (
-                  <>
-                    <Text
-                      style={{
-                        color: HEADER_TEXT_COLOR,
-                        fontSize: FONTSIZE_HEADER,
-                      }}
-                    >
-                      {day.setLocale(locale).weekdayShort}
-                    </Text>
+                  <Text
+                    style={{
+                      fontSize: 9,
+                      fontWeight: "200",
+                      color: HEADER_TEXT_COLOR,
+                    }}
+                  >
+                    {day.setLocale(locale).toFormat("MMM dd")}
+                  </Text>
+
+                  {weekStartYear !== weekdayYear && (
                     <Text
                       style={{
                         fontSize: 9,
@@ -419,31 +427,20 @@ const WeeklyView = ({
                         color: HEADER_TEXT_COLOR,
                       }}
                     >
-                      {day.setLocale(locale).toFormat("MMM dd")}
+                      {weekdayYear}
                     </Text>
-
-                    {weekStartYear !== weekdayYear && (
-                      <Text style={{ fontSize: 9, color: HEADER_TEXT_COLOR }}>
-                        {weekdayYear}
-                      </Text>
-                    )}
-                  </>
-                )}
-              </View>
-            );
-          })}
-        </View>
+                  )}
+                </>
+              )}
+            </View>
+          );
+        })}
       </View>
     );
   };
 
   const renderEvents = () => {
-    const filteredEvents = events.filter((event) => {
-      const startDate = DateTime.fromISO(event.isoStart);
-
-      return startDate >= dates.start && startDate <= dates.start.endOf("week");
-    });
-
+    const filteredEvents = filterAndSortEvents(events, dates);
     const intersectionGroups = getIntersectingGroups(filteredEvents);
 
     return filteredEvents.map((event) => {
@@ -461,13 +458,13 @@ const WeeklyView = ({
         "minutes"
       ).minutes;
       let widthRatio: number;
-      let leftOffset: number;
+      let leftOffsetPer: number;
 
       for (const eventIds of Object.values(intersectionGroups)) {
         if (eventIds.includes(event.id)) {
           widthRatio = 1 / eventIds.length;
           const index = eventIds.indexOf(event.id);
-          leftOffset = index * COLUMN_WIDTH * widthRatio;
+          leftOffsetPer = index * columnWidthPer * widthRatio;
           break;
         }
       }
@@ -481,7 +478,7 @@ const WeeklyView = ({
           style={({ pressed }) => [
             {
               position: "absolute",
-              width: COLUMN_WIDTH * widthRatio + "%",
+              width: columnWidthPer * widthRatio + "%",
               height: eventLengthMinutes * heightPerMinute,
               overflow: "hidden",
               alignItems: "center",
@@ -489,7 +486,7 @@ const WeeklyView = ({
               top:
                 intervalHeight / 2 +
                 diffTimetableStartMinutes * heightPerMinute,
-              left: COLUMN_WIDTH * isoWeekday + leftOffset + "%",
+              left: columnWidthPer * isoWeekday + leftOffsetPer + "%",
               opacity: pressed ? 0.5 : 1,
               backgroundColor: event.disabled
                 ? eventContainerStyle?.disabledColor ??
@@ -515,7 +512,6 @@ const WeeklyView = ({
               fontSize:
                 eventContainerStyle?.fontSize ??
                 DEFAULT_EVENT_CONTAINER_STYLE[theme].fontSize,
-              flex: 1,
               textAlign: "center",
               textDecorationLine: event.disabled ? "line-through" : "none",
               color:
@@ -578,7 +574,9 @@ const WeeklyView = ({
                 alignItems: "center",
               }}
             >
-              <View style={{ width: COLUMN_WIDTH + "%", alignItems: "center" }}>
+              <View
+                style={{ width: columnWidthPer + "%", alignItems: "center" }}
+              >
                 <Text
                   style={{
                     color: TIMETABLE_TEXT_COLOR,

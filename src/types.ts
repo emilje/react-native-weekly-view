@@ -26,12 +26,13 @@ export type DefaultStyle = {
   timetableColor?: string;
   timetableTextColor?: string;
   weekButtonColor?: string;
-  weekIconColor?: string;
+  weekButtonIconColor?: string;
   accentColor?: string;
   fontSizeHeader?: number;
   fontSizeTimetable?: number;
   dropdownCurrentWeekColor?: string;
   dropdownColor?: string;
+  arrowColor?:string;
 };
 
 export type WeeklyViewType = {

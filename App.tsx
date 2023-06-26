@@ -134,38 +134,56 @@ export default function App() {
         <View style={{ flex: 1 }}>
           <WeeklyView
             // showWeekend={false}
+            style={{ fontSizeTimetable: 10, fontSizeHeader: 9 }}
             timezone="Europe/Helsinki"
             events={EVENTS}
             onEventPress={(event: calendarEvent) => {
               console.log("Pressed", event);
             }}
           />
-          {/* <WeeklyView
-            intervalLengthMinutes={60}
+          <WeeklyView
+            // theme="light"
+            style={{
+              headerColor: "firebrick",
+              timetableColor: "salmon",
+              accentColor:"beige",
+              fontSizeTimetable: 10,
+              fontSizeHeader: 9,
+              arrowColor: "indigo",
+              weekButtonColor: "rgba(0,0,0,0.1)",
+              weekButtonIconColor:"teal"
+            }}
+            eventContainerStyle={{ borderWidth: 0.5, borderColor: "lightgray" }}
+            events={EVENTS}
+            onEventPress={(event: calendarEvent) => {
+              console.log("Pressed", event);
+            }}
+          />
+        </View>
+        <View style={{ flex: 1 }}>
+          <WeeklyView
+            style={{
+              timetableColor: "mediumseagreen",
+              headerColor: "seagreen",
+              fontSizeTimetable: 10,
+              fontSizeHeader: 9,
+              arrowColor: "gold",
+            }}
+            eventContainerStyle={{ borderWidth: 0.5, borderColor: "gray" }}
+            events={EVENTS}
+            onEventPress={(event: calendarEvent) => {
+              console.log("Pressed", event);
+            }}
+          />
+          <WeeklyView
+              style={{ fontSizeTimetable: 10, fontSizeHeader: 9 }}
             theme="light"
             events={EVENTS}
             onEventPress={(event: calendarEvent) => {
               console.log("Pressed", event);
             }}
-          /> */}
+          />
         </View>
-        {/* <View style={{ flex: 1 }}>
-          <WeeklyView
-            theme="dark"
-            style={{ headerTextColor: "pink", timetableTextColor: "lightblue" }}
-            eventContainerStyle={{ textColor: "purple", borderWidth: 0 }}
-            events={EVENTS}
-            onEventPress={(event: calendarEvent) => {
-              console.log("Pressed", event);
-            }}
-          />
-          <WeeklyView
-            events={EVENTS}
-            onEventPress={(event: calendarEvent) => {
-              console.log("Pressed", event);
-            }}
-          />
-        </View> */}
       </View>
     </SafeAreaView>
   );

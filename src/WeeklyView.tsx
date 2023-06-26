@@ -32,6 +32,7 @@ const DEFAULT_STYLE = {
     fontSizeTimetable: 12,
     dropdownCurrentWeekColor: "rgba(0,0,0,0.1)",
     dropdownColor: "#fafafa",
+    arrowColor:"gray",
   } as DefaultStyle,
   dark: {
     headerColor: "rgb(25,25,35)",
@@ -44,6 +45,7 @@ const DEFAULT_STYLE = {
     fontSizeTimetable: 12,
     dropdownCurrentWeekColor: "rgba(255,255,255,0.1)",
     dropdownColor: "rgb(25,25,35)",
+    arrowColor:"gray",
   } as DefaultStyle,
 };
 
@@ -98,8 +100,6 @@ const WeeklyView = ({
   const TIMETABLE_COLOR =
     style?.timetableColor ?? DEFAULT_STYLE[theme].timetableColor;
   const HEADER_COLOR = style?.headerColor ?? DEFAULT_STYLE[theme].headerColor;
-  const PRESSABLE_COLOR =
-    style?.weekButtonColor ?? DEFAULT_STYLE[theme].weekButtonColor;
   const ACCENT_COLOR = style?.accentColor ?? DEFAULT_STYLE[theme].accentColor;
   const FONTSIZE_HEADER =
     style?.fontSizeHeader ?? DEFAULT_STYLE[theme].fontSizeHeader;
@@ -110,6 +110,7 @@ const WeeklyView = ({
     DEFAULT_STYLE[theme].dropdownCurrentWeekColor;
   const DROPDOWN_COLOR =
     style?.dropdownColor ?? DEFAULT_STYLE[theme].dropdownColor;
+  const ARROW_ICON_COLOR = style?.arrowColor ?? DEFAULT_STYLE[theme].arrowColor
   const selectedWeek = dates.start.weekNumber;
   const currentWeek = DateTime.now().weekNumber;
   const numOfWeeks = dates.start.weeksInWeekYear;
@@ -273,13 +274,13 @@ const WeeklyView = ({
         >
           <Arrow
             orientation="LEFT"
-            color="gray"
+            color={ARROW_ICON_COLOR}
             size={32}
             style={{
               padding: 6,
               borderRadius: 99,
               borderWidth: 0.5,
-              borderColor: "gray",
+              borderColor: ARROW_ICON_COLOR,
             }}
           />
         </Pressable>
@@ -294,7 +295,7 @@ const WeeklyView = ({
           }}
           style={({ pressed }) => [
             {
-              backgroundColor: PRESSABLE_COLOR,
+              backgroundColor: style?.weekButtonColor ?? DEFAULT_STYLE[theme].weekButtonColor,
               borderRadius: 99,
               padding: 8,
               justifyContent: "center",
@@ -325,7 +326,7 @@ const WeeklyView = ({
                 overflow: "hidden",
                 width: 24,
                 aspectRatio: 1,
-                backgroundColor: style?.weekButtonColor || HEADER_COLOR,
+                backgroundColor: style?.weekButtonIconColor || HEADER_COLOR,
               }}
             />
           </View>
@@ -344,13 +345,13 @@ const WeeklyView = ({
         >
           <Arrow
             orientation="RIGHT"
-            color="gray"
+            color={ARROW_ICON_COLOR}
             size={32}
             style={{
               padding: 6,
               borderRadius: 99,
               borderWidth: 0.5,
-              borderColor: "gray",
+              borderColor: ARROW_ICON_COLOR,
             }}
           />
         </Pressable>
@@ -403,6 +404,7 @@ const WeeklyView = ({
                 <>
                   <Text
                     style={{
+                      textAlign:"center",
                       color: HEADER_TEXT_COLOR,
                       fontSize: FONTSIZE_HEADER,
                     }}
@@ -411,7 +413,8 @@ const WeeklyView = ({
                   </Text>
                   <Text
                     style={{
-                      fontSize: 9,
+                      textAlign:"center",
+                      fontSize: FONTSIZE_HEADER,
                       fontWeight: "200",
                       color: HEADER_TEXT_COLOR,
                     }}
@@ -422,6 +425,7 @@ const WeeklyView = ({
                   {weekStartYear !== weekdayYear && (
                     <Text
                       style={{
+                        textAlign:"center",
                         fontSize: 9,
                         fontWeight: "200",
                         color: HEADER_TEXT_COLOR,

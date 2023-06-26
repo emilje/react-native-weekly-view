@@ -60,6 +60,8 @@ WeeklyView is highly customizable and allows you to change colors, font sizes an
   timetableEndHour,
   intervalLengthMinutes,
   intervalHeight,
+  translationWeek,
+  showWeekend
 ```
 Please check [props](#props) below for more information.
 ![preview](https://raw.githubusercontent.com/emilje/react-native-weekly-view/main/images/preview-customization.png)<br/>

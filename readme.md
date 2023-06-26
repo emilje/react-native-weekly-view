@@ -4,7 +4,8 @@
 ![](https://img.shields.io/github/stars/emilje/react-native-weekly-view.svg?color=blue)
 ![](https://img.shields.io/github/issues/emilje/react-native-weekly-view.svg?color=red)
 <br/>
-![preview](https://raw.githubusercontent.com/emilje/react-native-weekly-view/main/images/1.png)<br/>
+![preview](https://raw.githubusercontent.com/emilje/react-native-weekly-view/main/images/preview.png)<br/>
+###### Device mockups created at [deviceframes.](https://deviceframes.com/) 
 
 ## Installation
 Use npm or yarn.
@@ -59,8 +60,13 @@ WeeklyView is highly customizable and allows you to change colors, font sizes an
   timetableEndHour,
   intervalLengthMinutes,
   intervalHeight,
+  translationWeek,
+  showWeekend
 ```
-Please check [props](#types) below for more information.
+Please check [props](#props) below for more information.
+![preview](https://raw.githubusercontent.com/emilje/react-native-weekly-view/main/images/preview-customization.png)<br/>
+###### Device mockup created at [deviceframes.](https://deviceframes.com/) 
+
 
 ## Example
 To run the example, clone the project ```git clone https://github.com/emilje/react-native-weekly-view.git```, navigate into the example folder ```cd example``` and run ```npm i```.<br/>
@@ -90,6 +96,8 @@ Remember to change main field back to "dist/index.js" before making any pull req
 |intervalHeight|number|`Vertical space between intervals.`|No|
 |eventContainerStyle|object|`Style object used for customizing the events.` Check the [types](#types) below.|No|
 |style|object|`Style object used for customizing the general look of the header and the timetable.` Check the [types](#types) below.|No|
+|translationWeek|string|`How the word "Week" will appear.`|No|
+|showWeekend|boolean|`Will hide saturday and sunday if false.|No|
 
 <a name="types"></a>
 ## Types
@@ -129,7 +137,6 @@ Remember to change main field back to "dist/index.js" before making any pull req
 |dropdownCurrentWeekColor|string|`Background color of the current week in the list.`|No|
 |accentColor|string|`Color of the current weekday highlight, week dropdown arrow color and the currently selected week eye icon color`|No|
 |weekButtonColor|string|`Color of the week dropdown button.`|No|
-|weekIconColor|string|`Color of the down arrow circular background in the week dropdown button.`|No|
-
-
-
+|weekButtonIconColor|string|`Color of the down arrow circular background in the week dropdown button.`|No|
+|dropdownSelectedWeekIcon|JSX Element|`Icon next to the currently selected week in the dropdown.`|No|
+|arrowColor|string|`Color of the left/right arrows.`|No|

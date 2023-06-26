@@ -134,7 +134,7 @@ export default function App() {
         <View style={{ flex: 1 }}>
           <WeeklyView
             // showWeekend={false}
-            style={{ fontSizeTimetable: 10, fontSizeHeader: 9 }}
+            style={{ fontSizeTimetable: 10, fontSizeHeader: 9, dropdownSelectedWeekIcon: <MaterialCommunityIcons name="ab-testing" color={"white"} size={12} /> }}
             timezone="Europe/Helsinki"
             events={EVENTS}
             onEventPress={(event: calendarEvent) => {
@@ -151,9 +151,10 @@ export default function App() {
               fontSizeHeader: 9,
               arrowColor: "indigo",
               weekButtonColor: "rgba(0,0,0,0.1)",
-              weekButtonIconColor:"teal"
+              weekButtonIconColor:"teal",
+              dropdownSelectedWeekIcon: <MaterialCommunityIcons name="ab-testing" color={"white"} size={14} /> 
             }}
-            eventContainerStyle={{ borderWidth: 0.5, borderColor: "lightgray" }}
+            eventContainerStyle={{ borderWidth: 0.5, borderColor: "lightgray",  }}
             events={EVENTS}
             onEventPress={(event: calendarEvent) => {
               console.log("Pressed", event);

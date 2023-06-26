@@ -30,8 +30,9 @@ export type DefaultStyle = {
   accentColor?: string;
   fontSizeHeader?: number;
   fontSizeTimetable?: number;
-  dropdownCurrentWeekColor?: string;
   dropdownColor?: string;
+  dropdownCurrentWeekColor?: string;
+  dropdownSelectedWeekIcon?: JSX.Element;
   arrowColor?:string;
 };
 

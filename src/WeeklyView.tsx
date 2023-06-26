@@ -32,7 +32,7 @@ const DEFAULT_STYLE = {
     fontSizeTimetable: 12,
     dropdownCurrentWeekColor: "rgba(0,0,0,0.1)",
     dropdownColor: "#fafafa",
-    arrowColor:"gray",
+    arrowColor: "gray",
   } as DefaultStyle,
   dark: {
     headerColor: "rgb(25,25,35)",
@@ -45,7 +45,7 @@ const DEFAULT_STYLE = {
     fontSizeTimetable: 12,
     dropdownCurrentWeekColor: "rgba(255,255,255,0.1)",
     dropdownColor: "rgb(25,25,35)",
-    arrowColor:"gray",
+    arrowColor: "gray",
   } as DefaultStyle,
 };
 
@@ -110,12 +110,12 @@ const WeeklyView = ({
     DEFAULT_STYLE[theme].dropdownCurrentWeekColor;
   const DROPDOWN_COLOR =
     style?.dropdownColor ?? DEFAULT_STYLE[theme].dropdownColor;
-  const ARROW_ICON_COLOR = style?.arrowColor ?? DEFAULT_STYLE[theme].arrowColor
+  const ARROW_COLOR = style?.arrowColor ?? DEFAULT_STYLE[theme].arrowColor;
   const selectedWeek = dates.start.weekNumber;
   const currentWeek = DateTime.now().weekNumber;
   const numOfWeeks = dates.start.weeksInWeekYear;
   const columnWidthPer = showWeekend ? 100 / 8 : 100 / 6;
-  const arr = useMemo(() => {
+  const numOfWeeksArr = useMemo(() => {
     return Array(numOfWeeks).fill("");
   }, [numOfWeeks]);
 
@@ -164,30 +164,38 @@ const WeeklyView = ({
           <Text
             style={{ color: HEADER_TEXT_COLOR, fontSize: FONTSIZE_HEADER }}
           >{`${translationWeek} ${weekNumber}`}</Text>
-          <Image
-            source={require("./assets/eye.png")}
-            style={[
-              {
-                width: 14,
-                aspectRatio: 1,
-                tintColor: ACCENT_COLOR,
-                opacity: selectedWeek === weekNumber ? 1 : 0,
-              },
-            ]}
-          />
+          <View
+            style={{
+              opacity: selectedWeek === weekNumber ? 1 : 0,
+              overflow: "hidden",
+            }}
+          >
+            {style?.dropdownSelectedWeekIcon || (
+              <Image
+                source={require("./assets/eye.png")}
+                style={[
+                  {
+                    tintColor: ACCENT_COLOR,
+                    width: 14,
+                    height: 14,
+                  },
+                ]}
+              />
+            )}
+          </View>
         </Pressable>
       );
     };
 
     return (
       <FlatList
-        data={arr}
+        data={numOfWeeksArr}
         renderItem={({ index }) => renderItem(index + 1)}
         keyExtractor={(_, index) => index.toString()}
       />
     );
   }, [
-    arr,
+    numOfWeeksArr,
     currentWeek,
     selectedWeek,
     setDates,
@@ -198,6 +206,7 @@ const WeeklyView = ({
     FONTSIZE_HEADER,
     HEADER_TEXT_COLOR,
     translationWeek,
+    style?.dropdownSelectedWeekIcon
   ]);
 
   const renderWeekDropdown = () => {
@@ -274,13 +283,13 @@ const WeeklyView = ({
         >
           <Arrow
             orientation="LEFT"
-            color={ARROW_ICON_COLOR}
+            color={ARROW_COLOR}
             size={32}
             style={{
               padding: 6,
               borderRadius: 99,
               borderWidth: 0.5,
-              borderColor: ARROW_ICON_COLOR,
+              borderColor: ARROW_COLOR,
             }}
           />
         </Pressable>
@@ -295,7 +304,8 @@ const WeeklyView = ({
           }}
           style={({ pressed }) => [
             {
-              backgroundColor: style?.weekButtonColor ?? DEFAULT_STYLE[theme].weekButtonColor,
+              backgroundColor:
+                style?.weekButtonColor ?? DEFAULT_STYLE[theme].weekButtonColor,
               borderRadius: 99,
               padding: 8,
               justifyContent: "center",
@@ -345,13 +355,13 @@ const WeeklyView = ({
         >
           <Arrow
             orientation="RIGHT"
-            color={ARROW_ICON_COLOR}
+            color={ARROW_COLOR}
             size={32}
             style={{
               padding: 6,
               borderRadius: 99,
               borderWidth: 0.5,
-              borderColor: ARROW_ICON_COLOR,
+              borderColor: ARROW_COLOR,
             }}
           />
         </Pressable>
@@ -404,7 +414,7 @@ const WeeklyView = ({
                 <>
                   <Text
                     style={{
-                      textAlign:"center",
+                      textAlign: "center",
                       color: HEADER_TEXT_COLOR,
                       fontSize: FONTSIZE_HEADER,
                     }}
@@ -413,7 +423,7 @@ const WeeklyView = ({
                   </Text>
                   <Text
                     style={{
-                      textAlign:"center",
+                      textAlign: "center",
                       fontSize: FONTSIZE_HEADER,
                       fontWeight: "200",
                       color: HEADER_TEXT_COLOR,
@@ -425,7 +435,7 @@ const WeeklyView = ({
                   {weekStartYear !== weekdayYear && (
                     <Text
                       style={{
-                        textAlign:"center",
+                        textAlign: "center",
                         fontSize: 9,
                         fontWeight: "200",
                         color: HEADER_TEXT_COLOR,

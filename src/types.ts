@@ -1,6 +1,6 @@
-import { FlexStyle, PressableProps, StyleProp, ViewStyle } from "react-native";
+import { StyleProp, ViewStyle } from "react-native";
 
-export type calendarEvent = {
+export type CalendarEvent = {
   id: number | string;
   isoStart: string;
   isoEnd: string;
@@ -37,9 +37,9 @@ export type DefaultStyle = {
 };
 
 export type WeeklyViewType = {
-  events: calendarEvent[];
+  events: CalendarEvent[];
   locale?: string;
-  onEventPress: (event: calendarEvent) => void;
+  onEventPress: (event: CalendarEvent) => void;
   timezone?: string;
   theme?: "light" | "dark";
   eventContainerStyle?: EventContainerStyle;

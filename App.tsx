@@ -2,12 +2,12 @@ import React from "react";
 import { SafeAreaView, StatusBar, View } from "react-native";
 import WeeklyView from "./src/WeeklyView";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { calendarEvent } from "./src/types";
+import { CalendarEvent } from "./src/types";
 import { DateTime } from "luxon";
 
 const today = DateTime.now();
 
-const EVENTS: calendarEvent[] = [
+const EVENTS: CalendarEvent[] = [
   {
     id: 1,
     isoStart: today.set({hour:7, minute:0}).toISO() as string,
@@ -129,6 +129,36 @@ const EVENTS: calendarEvent[] = [
   },
 ];
 
+const EVENTS2 = [
+  {
+    id: 1,
+    isoStart: today.set({ hour: 7, minute: 0 }).toISO() as string,
+    isoEnd: today.set({ hour: 13, minute: 0 }).toISO() as string,
+    name: "Extra sleep",
+    icon: <MaterialCommunityIcons name="bed" size={12} />,
+    color: "cornflowerblue",
+    disabled: false,
+  },
+  {
+    id: 2,
+    isoStart: today.set({ hour: 8, minute: 0 }).toISO() as string,
+    isoEnd: today.set({ hour: 10, minute: 0 }).toISO() as string,
+    name: "Extra sleep",
+    icon: <MaterialCommunityIcons name="bed" size={12} />,
+    color: "cornflowerblue",
+    disabled: false,
+  },
+  {
+    id: 3,
+    isoStart: today.set({ hour: 11, minute: 0 }).toISO() as string,
+    isoEnd: today.set({ hour: 13, minute: 0 }).toISO() as string,
+    name: "Extra sleep",
+    icon: <MaterialCommunityIcons name="bed" size={12} />,
+    color: "cornflowerblue",
+    disabled: false,
+  },
+];
+
 export default function App() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "black" }}>
@@ -138,8 +168,8 @@ export default function App() {
             showWeekend={false}
             // style={{ fontSizeTimetable: 10, fontSizeHeader: 9, dropdownSelectedWeekIcon: <MaterialCommunityIcons name="ab-testing" color={"white"} size={12} /> }}
             timezone="Europe/Helsinki"
-            events={EVENTS}
-            onEventPress={(event: calendarEvent) => {
+            events={EVENTS2}
+            onEventPress={(event: CalendarEvent) => {
               console.log("Pressed", event);
             }}
           />

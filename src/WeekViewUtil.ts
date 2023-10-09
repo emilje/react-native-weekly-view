@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 import { View } from "react-native";
-import { calendarEvent } from "./types";
+import { CalendarEvent } from "./types";
 
 export const getStartingDates = () => {
   const weekStart = DateTime.now().startOf("week");
@@ -35,7 +35,7 @@ export const getDatesByWeek = (
 };
 
 export const filterAndSortEvents = (
-  events: calendarEvent[],
+  events: CalendarEvent[],
   dates: { start: DateTime; end: DateTime }
 ) => {
   const filteredEvents = events.filter((event) => {
@@ -53,52 +53,52 @@ export const filterAndSortEvents = (
   return filteredEvents;
 };
 
-export const getIntersectingGroups = (events: calendarEvent[]) => {
-  let currentGroup = 0;
-  const groups: { [key: number]: any[number | string] } = { 0: [] };
+const isIntersectingCurrentGroup = (
+  event: CalendarEvent,
+  currentGroup: number[] | string[],
+  events: CalendarEvent[]
+) => {
+  const eventStart = DateTime.fromISO(event.isoStart);
+  for (const groupEventId of currentGroup) {
+    const groupEvent = events.find((event) => event.id === groupEventId);
+    const groupEventEnd = DateTime.fromISO(groupEvent!!.isoEnd);
 
-  
+    if (eventStart < groupEventEnd) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+export const getIntersectingGroups = (events: CalendarEvent[]) => {
+  let currentGroup = 0;
+  let sortedEvents = 0;
+  const groups: { [key: number]: any[number | string] } = { 0: [] };
 
   for (let i = 0; i < events.length; i++) {
     const event = events[i];
-    const nextEvent = events[i + 1];
-    const eventStart = DateTime.fromISO(event.isoStart);
-    const eventEnd = DateTime.fromISO(event.isoEnd);
 
-    if (!nextEvent) {
+    if (groups[currentGroup].length === 0) {
       groups[currentGroup].push(event.id);
-      break;
-    }
-
-    const nextStart = DateTime.fromISO(nextEvent.isoStart);
-
-    if (nextStart >= eventEnd) {
-      groups[currentGroup].push(event.id);
-      currentGroup++;
-      groups[currentGroup] = [];
+      sortedEvents++
       continue;
     }
 
-    if (nextStart >= eventStart && nextStart <= eventEnd) {
+    if (isIntersectingCurrentGroup(event, groups[currentGroup], events)) {
       groups[currentGroup].push(event.id);
-      groups[currentGroup].push(nextEvent.id);
+    } else {
+      currentGroup++;
+      groups[currentGroup] = [event.id];
     }
+
+    sortedEvents++
   }
 
-  const filteredGroups: { [key: number]: any[number | string] } = {};
-  let totalEventsSorted = 0;
-
-  for (const [key, value] of Object.entries(groups)) {
-    const uniqueValuesArr = Array.from(new Set(value));
-    filteredGroups[Number(key)] = uniqueValuesArr;
-    totalEventsSorted += uniqueValuesArr.length;
+  if(sortedEvents !== events.length) {
+    console.warn("Some events did not get grouped.")
   }
-
-  if (events.length !== totalEventsSorted) {
-    console.warn("Smth is up.");
-  }
-
-  return filteredGroups;
+  return groups;
 };
 
 export const measureView = async (

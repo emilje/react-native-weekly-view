@@ -8,6 +8,7 @@ import {
   Text,
   Image,
   Easing,
+  DimensionValue,
 } from "react-native";
 import {
   shiftWeek,
@@ -503,7 +504,7 @@ const WeeklyView = ({
             style={({ pressed }) => [
               {
                 position: "absolute",
-                width: elementWidth + "%",
+                width: elementWidth + "%" as DimensionValue,
                 height: eventLengthMinutes * HEIGHT_PER_MINUTE,
                 overflow: "hidden",
                 alignItems: "center",
@@ -514,7 +515,7 @@ const WeeklyView = ({
                 left:
                   columnWidthPer * isoWeekday +
                   elementWidth * columnNumber +
-                  "%",
+                  "%" as DimensionValue,
                 opacity: pressed ? 0.5 : 1,
                 backgroundColor: event.disabled
                   ? eventContainerStyle?.disabledColor ??
@@ -606,7 +607,10 @@ const WeeklyView = ({
               }}
             >
               <View
-                style={{ width: columnWidthPer + "%", alignItems: "center" }}
+                style={{
+                  width: (columnWidthPer + "%") as DimensionValue,
+                  alignItems: "center",
+                }}
               >
                 <Text
                   style={{

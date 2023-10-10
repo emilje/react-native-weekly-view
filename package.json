@@ -2,7 +2,7 @@
   "name": "react-native-weekly-view",
   "version": "1.0.3",
   "description": "Calendars made simple!",
-  "main": "node_modules/expo/AppEntry.js",
+  "main": "main",
   "repository": {
     "type": "git",
     "url": "https://github.com/emilje/react-native-weekly-view/"

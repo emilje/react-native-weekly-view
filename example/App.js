@@ -4,19 +4,21 @@ import { WeeklyView } from "react-native-weekly-view";
 import Icon from "./components/Icon";
 import { DateTime } from "luxon";
 
+const today = DateTime.now();
+
 const EVENTS = [
   {
     id: 1,
-    isoStart: "2023-06-23T07:00:00.000+03:00",
-    isoEnd: "2023-06-23T08:00:00.000+03:00",
+    isoStart: today.set({hour:7, minute:0}).toISO(),
+    isoEnd: today.set({hour:8, minute:0}).toISO(),
     name: "Breakfast",
     icon: <Icon name={"food"} size={14} />,
     disabled: true,
   },
   {
     id: 2,
-    isoStart: "2023-06-23T08:30:00.000+03:00",
-    isoEnd: "2023-06-23T09:00:00.000+03:00",
+    isoStart: today.set({hour:8, minute:30}).toISO(),
+    isoEnd: today.set({hour:9, minute:0}).toISO(),
     name: "Lunch",
     color: "pink",
     icon: <Icon name={"food"} size={14} />,
@@ -24,54 +26,96 @@ const EVENTS = [
   },
   {
     id: 3,
-    isoStart: "2023-06-23T12:00:00.000+03:00",
-    isoEnd: "2023-06-23T13:30:00.000+03:00",
+    isoStart: today.set({hour:12, minute:30}).toISO(),
+    isoEnd: today.set({hour:13, minute:30}).toISO(),
     name: "Coding",
     icon: <Icon name={"laptop"} size={14} />,
     disabled: false,
   },
   {
     id: 4,
-    isoStart: "2023-06-19T07:15:00.000+03:00",
-    isoEnd: "2023-06-19T08:00:00.000+03:00",
+    isoStart: today.minus({day:1}).set({hour:7, minute:15}).toISO(),
+    isoEnd: today.minus({day:1}).set({hour:8, minute:0}).toISO(),
     name: "Coding",
     icon: <Icon name={"laptop"} size={14} />,
     disabled: false,
   },
   {
     id: 5,
-    isoStart: "2023-06-19T07:15:00.000+03:00",
-    isoEnd: "2023-06-19T08:45:00.000+03:00",
+    isoStart: today.minus({day:1}).set({hour:7, minute:15}).toISO(),
+    isoEnd: today.minus({day:1}).set({hour:8, minute:45}).toISO(),
     name: "Finish podcast",
     icon: <Icon name={"laptop"} size={14} />,
     disabled: false,
   },
   {
     id: 6,
-    isoStart: "2023-06-18T09:00:00.000+03:00",
-    isoEnd: "2023-06-18T11:00:00.000+03:00",
-    name: "Enjoy sunday",
+    isoStart: today.minus({day:1}).set({hour:9, minute:0}).toISO(),
+    isoEnd: today.minus({day:1}).set({hour:11, minute:0}).toISO(),
+    name: "Enjoy well earned rest",
     disabled: false,
   },
   {
     id: 7,
-    isoStart: "2023-06-16T09:00:00.000+03:00",
-    isoEnd: "2023-06-16T17:00:00.000+03:00",
+    isoStart: today.plus({day:1}).set({hour:7, minute:0}).toISO(),
+    isoEnd: today.plus({day:1}).set({hour:12, minute:0}).toISO(),
     name: "Survive work",
     disabled: false,
   },
   {
+    id: 13,
+    isoStart: today.plus({day:1}).set({hour:10, minute:0}).toISO(),
+    isoEnd: today.plus({day:1}).set({hour:11, minute:0}).toISO(),
+    name: "Survive work",
+    disabled: false,
+  },
+  {
+    id: 14,
+    isoStart: today.plus({day:1}).set({hour:8, minute:0}).toISO(),
+    isoEnd: today.plus({day:1}).set({hour:9, minute:0}).toISO(),
+    name: "More randomness",
+    disabled: false,
+  },
+  {
+    id: 15,
+    isoStart: today.plus({day:1}).set({hour:8, minute:0}).toISO(),
+    isoEnd: today.plus({day:1}).set({hour:11, minute:0}).toISO(),
+    name: "Random nest",
+    disabled: false,
+  },
+  {
     id: 8,
-    isoStart: "2023-06-28T09:00:00.000+03:00",
-    isoEnd: "2023-06-28T11:00:00.000+03:00",
+    isoStart: today.plus({day:1}).set({hour:14, minute:0}).toISO(),
+    isoEnd: today.plus({day:1}).set({hour:16, minute:0}).toISO(),
     name: "Gym",
     disabled: false,
   },
   {
     id: 9,
-    isoStart: "2023-06-30T12:00:00.000+03:00",
-    isoEnd: "2023-06-30T13:45:00.000+03:00",
+    isoStart: today.plus({day:2}).set({hour:12, minute:0}).toISO(),
+    isoEnd: today.plus({day:2}).set({hour:13, minute:45}).toISO(),
     name: "Movies",
+    disabled: false,
+  },
+  {
+    id: 10,
+    isoStart: today.minus({day:7}).set({hour:8, minute:0}).toISO(),
+    isoEnd: today.minus({day:7}).set({hour:14, minute:0}).toISO(),
+    name: "Movies",
+    disabled: false,
+  },
+  {
+    id: 11,
+    isoStart: today.minus({day:7}).set({hour:8, minute:30}).toISO(),
+    isoEnd: today.minus({day:7}).set({hour:10, minute:0}).toISO(),
+    name: "Snacks",
+    disabled: false,
+  },
+  {
+    id: 12,
+    isoStart: today.minus({day:7}).set({hour:11, minute:0}).toISO(),
+    isoEnd: today.minus({day:7}).set({hour:12, minute:0}).toISO(),
+    name: "Random nested event",
     disabled: false,
   },
 ];
@@ -85,6 +129,7 @@ export default function App() {
       <StatusBar translucent={false} barStyle="light-content" />
       <View style={{ flex: 1 }}>
         <WeeklyView
+        showWeekend={false}
           timetableStartHour={6}
           timezone={timezone}
           events={EVENTS}

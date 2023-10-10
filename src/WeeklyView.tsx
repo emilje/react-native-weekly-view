@@ -16,9 +16,10 @@ import {
   getDatesByWeek,
   measureView,
   filterAndSortEvents,
+  getColumnData,
 } from "./WeekViewUtil";
 import { DateTime } from "luxon";
-import { DefaultStyle, EventContainerStyle, WeeklyViewType } from "./types";
+import { CalendarEvent, DefaultStyle, EventContainerStyle, WeeklyViewType } from "./types";
 import Arrow from "./Arrow";
 
 const DEFAULT_STYLE = {
@@ -471,87 +472,89 @@ const WeeklyView = ({
     const filteredEvents = filterAndSortEvents(events, dates);
     const intersectionGroups = getIntersectingGroups(filteredEvents);
 
-    return filteredEvents.map((event) => {
-      const eventStart = DateTime.fromISO(event.isoStart).setZone(timezone);
-      const eventEnd = DateTime.fromISO(event.isoEnd).setZone(timezone);
-      const eventLengthMinutes = eventEnd.diff(eventStart, "minutes").minutes;
-      const isoWeekday = eventStart.get("weekday");
-      const dayStart = eventStart.set({
-        hour: timetableStartHour,
-        minute: 0,
-      });
+    const eventElements: JSX.Element[] = [];
 
-      const diffTimetableStartMinutes = eventStart.diff(
-        dayStart,
-        "minutes"
-      ).minutes;
-      let widthRatio: number;
-      let leftOffsetPer: number;
+    for (const groupEvents of Object.values(intersectionGroups)) {
+      const { numOfColumns, idToColumn } = getColumnData(groupEvents);
+      const elementWidth = columnWidthPer / numOfColumns;
 
-      for (const eventIds of Object.values(intersectionGroups)) {
-        if (eventIds.includes(event.id)) {
-          widthRatio = 1 / eventIds.length;
-          const index = eventIds.indexOf(event.id);
-          leftOffsetPer = index * columnWidthPer * widthRatio;
-          break;
-        }
-      }
+      groupEvents.forEach((event) => {
+        const eventStart = DateTime.fromISO(event.isoStart).setZone(timezone);
+        const eventEnd = DateTime.fromISO(event.isoEnd).setZone(timezone);
+        const eventLengthMinutes = eventEnd.diff(eventStart, "minutes").minutes;
+        const isoWeekday = eventStart.get("weekday");
+        const dayStart = eventStart.set({
+          hour: timetableStartHour,
+          minute: 0,
+        });
+        const columnNumber = idToColumn[event.id];
 
-      return (
-        <Pressable
-          onPress={() => {
-            onEventPress(event);
-          }}
-          key={event.id}
-          style={({ pressed }) => [
-            {
-              position: "absolute",
-              width: columnWidthPer * widthRatio + "%",
-              height: eventLengthMinutes * HEIGHT_PER_MINUTE,
-              overflow: "hidden",
-              alignItems: "center",
-              padding: 2,
-              top:
-                intervalHeight / 2 +
-                diffTimetableStartMinutes * HEIGHT_PER_MINUTE,
-              left: columnWidthPer * isoWeekday + leftOffsetPer + "%",
-              opacity: pressed ? 0.5 : 1,
-              backgroundColor: event.disabled
-                ? eventContainerStyle?.disabledColor ??
-                  DEFAULT_EVENT_CONTAINER_STYLE[theme].disabledColor
-                : event.color ??
-                  eventContainerStyle?.backgroundColor ??
-                  DEFAULT_EVENT_CONTAINER_STYLE[theme].backgroundColor,
-              borderColor:
-                eventContainerStyle?.borderColor ??
-                DEFAULT_EVENT_CONTAINER_STYLE[theme].borderColor,
-              borderWidth:
-                eventContainerStyle?.borderWidth ??
-                DEFAULT_EVENT_CONTAINER_STYLE[theme].borderWidth,
-              borderRadius:
-                eventContainerStyle?.borderRadius ??
-                DEFAULT_EVENT_CONTAINER_STYLE[theme].borderRadius,
-            },
-          ]}
-        >
-          {event.icon}
-          <Text
-            style={{
-              fontSize:
-                eventContainerStyle?.fontSize ??
-                DEFAULT_EVENT_CONTAINER_STYLE[theme].fontSize,
-              textAlign: "center",
-              textDecorationLine: event.disabled ? "line-through" : "none",
-              color:
-                eventContainerStyle?.textColor ??
-                DEFAULT_EVENT_CONTAINER_STYLE[theme].textColor,
+        const diffTimetableStartMinutes = eventStart.diff(
+          dayStart,
+          "minutes"
+        ).minutes;
+
+        eventElements.push(
+          <Pressable
+            onPress={() => {
+              onEventPress(event);
             }}
+            key={event.id}
+            style={({ pressed }) => [
+              {
+                position: "absolute",
+                width: elementWidth + "%",
+                height: eventLengthMinutes * HEIGHT_PER_MINUTE,
+                overflow: "hidden",
+                alignItems: "center",
+                padding: 2,
+                top:
+                  diffTimetableStartMinutes * HEIGHT_PER_MINUTE +
+                  intervalHeight / 2,
+                left:
+                  columnWidthPer * isoWeekday +
+                  elementWidth * columnNumber +
+                  "%",
+                opacity: pressed ? 0.5 : 1,
+                backgroundColor: event.disabled
+                  ? eventContainerStyle?.disabledColor ??
+                    DEFAULT_EVENT_CONTAINER_STYLE[theme].disabledColor
+                  : event.color ??
+                    eventContainerStyle?.backgroundColor ??
+                    DEFAULT_EVENT_CONTAINER_STYLE[theme].backgroundColor,
+                borderColor:
+                  eventContainerStyle?.borderColor ??
+                  DEFAULT_EVENT_CONTAINER_STYLE[theme].borderColor,
+                borderWidth:
+                  eventContainerStyle?.borderWidth ??
+                  DEFAULT_EVENT_CONTAINER_STYLE[theme].borderWidth,
+                borderRadius:
+                  eventContainerStyle?.borderRadius ??
+                  DEFAULT_EVENT_CONTAINER_STYLE[theme].borderRadius,
+              },
+            ]}
           >
-            {event.name}
-          </Text>
-        </Pressable>
-      );
-    });
+            {event.icon}
+            <Text
+              style={{
+                fontSize:
+                  eventContainerStyle?.fontSize ??
+                  DEFAULT_EVENT_CONTAINER_STYLE[theme].fontSize,
+                textAlign: "center",
+                textDecorationLine: event.disabled ? "line-through" : "none",
+                color:
+                  eventContainerStyle?.textColor ??
+                  DEFAULT_EVENT_CONTAINER_STYLE[theme].textColor,
+              }}
+            >
+              {event.name}
+            </Text>
+          </Pressable>
+        );
+      });
+    }
+
+    return eventElements;
   };
 
   const renderHeader = () => {

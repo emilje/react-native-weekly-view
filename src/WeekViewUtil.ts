@@ -1,4 +1,4 @@
-import { DateTime } from "luxon";
+import { DateTime, Interval } from "luxon";
 import { View } from "react-native";
 import { CalendarEvent } from "./types";
 
@@ -55,13 +55,11 @@ export const filterAndSortEvents = (
 
 const isIntersectingCurrentGroup = (
   event: CalendarEvent,
-  currentGroup: number[] | string[],
-  events: CalendarEvent[]
+  groupEvents: CalendarEvent[]
 ) => {
   const eventStart = DateTime.fromISO(event.isoStart);
-  for (const groupEventId of currentGroup) {
-    const groupEvent = events.find((event) => event.id === groupEventId);
-    const groupEventEnd = DateTime.fromISO(groupEvent!!.isoEnd);
+  for (const groupEvent of groupEvents) {
+    const groupEventEnd = DateTime.fromISO(groupEvent.isoEnd);
 
     if (eventStart < groupEventEnd) {
       return true;
@@ -74,22 +72,22 @@ const isIntersectingCurrentGroup = (
 export const getIntersectingGroups = (events: CalendarEvent[]) => {
   let currentGroup = 0;
   let sortedEvents = 0;
-  const groups: { [key: number]: any[number | string] } = { 0: [] };
+  const groups: { [key: number]: CalendarEvent[] } = { 0: [] };
 
   for (let i = 0; i < events.length; i++) {
     const event = events[i];
 
     if (groups[currentGroup].length === 0) {
-      groups[currentGroup].push(event.id);
+      groups[currentGroup].push(event);
       sortedEvents++
       continue;
     }
 
-    if (isIntersectingCurrentGroup(event, groups[currentGroup], events)) {
-      groups[currentGroup].push(event.id);
+    if (isIntersectingCurrentGroup(event, groups[currentGroup])) {
+      groups[currentGroup].push(event);
     } else {
       currentGroup++;
-      groups[currentGroup] = [event.id];
+      groups[currentGroup] = [event];
     }
 
     sortedEvents++
@@ -98,7 +96,66 @@ export const getIntersectingGroups = (events: CalendarEvent[]) => {
   if(sortedEvents !== events.length) {
     console.warn("Some events did not get grouped.")
   }
+
   return groups;
+};
+
+const areEventsIntersecting = (
+  event1: CalendarEvent,
+  event2: CalendarEvent
+) => {
+  const event1Interval = Interval.fromDateTimes(
+    DateTime.fromISO(event1.isoStart),
+    DateTime.fromISO(event1.isoEnd)
+  );
+
+  const event2Interval = Interval.fromDateTimes(
+    DateTime.fromISO(event2.isoStart),
+    DateTime.fromISO(event2.isoEnd)
+  );
+
+  const intersection = event2Interval.intersection(event1Interval);
+
+  return intersection ? true : false;
+};
+
+export const getColumnData = (groupEvents: CalendarEvent[]) => {
+  let columns: CalendarEvent[][] = [];
+  let sortedEvents = 0;
+  const idToColumn: { [key: number | string]: number } = {};
+
+  for (const event of groupEvents) {
+    for (let i = 0; i < groupEvents.length; i++) {
+      // If column has no events, put event in that column and proceed to next event.
+      if (!columns[i]) {
+        columns[i] = [event];
+        idToColumn[event.id] = i;
+        sortedEvents++;
+        break;
+      }
+
+      // Check if event is overlapping another event in the current column.
+      let isIntersectingColumnEvent = false;
+      for (const columnEvent of columns[i]) {
+        if (areEventsIntersecting(event, columnEvent)) {
+          isIntersectingColumnEvent = true;
+          break;
+        }
+      }
+
+      // If event does not intersect any event inside the column, add event to the column.
+      if (!isIntersectingColumnEvent) {
+        columns[i].push(event);
+        idToColumn[event.id] = i;
+        sortedEvents++;
+        break;
+      }
+
+      // If there is at least one intersection with a column event, continue to next column.
+    }
+  }
+
+  return { numOfColumns: columns.length, idToColumn };
 };
 
 export const measureView = async (
